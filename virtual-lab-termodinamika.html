@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virtual Lab Termodinamika</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",system-ui,Arial,sans-serif;background:#f1f5f9;color:#0f172a;line-height:1.55}
+#app{max-width:1000px;margin:0 auto;padding:0 16px 60px}
+h1,h2,h3{line-height:1.25;margin:.2em 0 .5em}
+.hero{background:linear-gradient(135deg,#0f172a,#1e3a8a 60%,#b45309);color:#fff;border-radius:0 0 22px 22px;padding:34px 30px;margin-bottom:22px}
+.hero h1{font-size:30px;margin:0}.hero p{margin:.5em 0 0;opacity:.9;max-width:720px}
+.card{background:#fff;border-radius:14px;padding:20px 22px;box-shadow:0 1px 4px rgba(15,23,42,.1);margin-bottom:20px}
+.idg{display:grid;grid-template-columns:1fr 1fr;gap:10px 16px}
+.idg label{font-size:13px;font-weight:600;color:#475569;display:block}
+input[type=text],textarea,select{font:inherit;border:1.5px solid #cbd5e1;border-radius:8px;padding:7px 10px;width:100%;background:#fff;color:inherit}
+input[type=text]:focus,textarea:focus,select:focus{outline:2px solid #38bdf8;border-color:#38bdf8}
+textarea{resize:vertical;min-height:54px;overflow:hidden}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(225px,1fr));gap:16px}
+[data-go]{cursor:pointer}
+.mc{display:block;text-decoration:none;color:inherit;background:#fff;border-radius:14px;padding:18px;border-top:6px solid var(--c);box-shadow:0 1px 4px rgba(15,23,42,.1);transition:transform .15s,box-shadow .15s}
+.mc:hover{transform:translateY(-4px);box-shadow:0 8px 20px rgba(15,23,42,.15)}
+.mc .ico{font-size:34px}.mc .no{font-size:12px;font-weight:700;color:var(--c);letter-spacing:.08em}
+.mc h3{margin:.1em 0;font-size:18px}.mc p{margin:0;font-size:13.5px;color:#475569}
+.mc .pg{margin-top:10px;font-size:12.5px;color:#334155;background:#f1f5f9;border-radius:8px;padding:4px 8px;display:inline-block}
+.mh{background:var(--c);color:#fff;border-radius:0 0 18px 18px;padding:16px 22px;display:flex;align-items:center;gap:14px;flex-wrap:wrap}
+.mh h1{font-size:22px;margin:0;flex:1}.mh small{display:block;font-weight:400;opacity:.9;font-size:14px}
+.btn{font:inherit;font-weight:600;border:0;border-radius:9px;padding:9px 16px;background:#0f172a;color:#fff;cursor:pointer}
+.btn:hover{filter:brightness(1.25)}.btn.sm{padding:6px 12px;font-size:14px}.btn.lt{background:#fff;color:#0f172a}
+.btn.rec{background:#ea580c}.btn:disabled{opacity:.45;cursor:not-allowed}
+a.btn{text-decoration:none}
+.tabs{display:flex;gap:6px;flex-wrap:wrap;margin:14px 0;position:sticky;top:0;background:#f1f5f9;padding:8px 0;z-index:5}
+.tabs button{font:inherit;font-size:14px;font-weight:600;border:1.5px solid #cbd5e1;background:#fff;border-radius:999px;padding:7px 14px;cursor:pointer;color:#334155}
+.tabs button.on{background:var(--c);border-color:var(--c);color:#fff}
+.panel{display:none;background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 1px 4px rgba(15,23,42,.1);margin-bottom:18px}
+.panel.on{display:block}
+.panel>h2{border-bottom:3px solid var(--c);padding-bottom:6px;font-size:21px}
+.step{background:#eff6ff;border-left:5px solid #3b82f6;border-radius:8px;padding:10px 14px;margin:12px 0}
+.story{background:#fffbeb;border-left:5px solid #f59e0b;border-radius:8px;padding:12px 16px;margin:12px 0}
+.lab{border:1.5px solid #e2e8f0;border-radius:12px;padding:12px;margin:14px 0;background:#f8fafc}
+.stage canvas{display:block;max-width:100%;height:auto;background:#fff;border-radius:10px;margin:0 auto;border:1px solid #e2e8f0}
+.read{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 4px;justify-content:center}
+.read div{background:#0f172a;color:#fff;border-radius:8px;padding:5px 12px;font-size:14px}
+.read span{opacity:.75;margin-right:6px}
+.ctrl{display:flex;flex-wrap:wrap;gap:12px 18px;align-items:end;margin-top:10px}
+.sl{flex:1;min-width:190px;font-size:14px}.sl span{display:block;margin-bottom:2px}.sl input[type=range]{width:100%}
+table.data{border-collapse:collapse;width:100%;margin:10px 0;font-size:14px}
+table.data th{background:#1e293b;color:#fff;padding:6px 8px}
+table.data td{border:1px solid #cbd5e1;padding:5px 8px;text-align:center}
+table.data td button{border:0;background:none;color:#dc2626;cursor:pointer;font-weight:700}
+.ask{margin:12px 0}.ask label{font-weight:600;display:block;margin-bottom:4px}
+.pick{display:flex;gap:12px;align-items:center;margin:8px 0;flex-wrap:wrap}
+.pick span{flex:1;min-width:260px}.pick select{width:auto;min-width:190px}
+select.ok{border-color:#16a34a;background:#dcfce7}select.no{border-color:#dc2626;background:#fee2e2}
+.konsep{background:#ecfdf5;border:2px solid #10b981;border-radius:12px;padding:14px 18px;margin-top:14px}
+.konsep h3{color:#047857}
+.rumus{font-family:Cambria,"Times New Roman",serif;font-size:19px;background:#fff;border-radius:8px;padding:6px 14px;display:inline-block;margin:4px 6px 4px 0;border:1px solid #a7f3d0}
+.qz{border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 16px;margin:14px 0;break-inside:avoid}
+.qn{font-weight:700;color:var(--c)}
+.ans{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.ans input{width:140px}
+.fb{font-weight:600}
+.score{background:#0f172a;color:#fff;border-radius:10px;padding:8px 16px;display:inline-block;font-size:17px}
+.warn{background:#fef2f2;border:1.5px solid #fca5a5;border-radius:10px;padding:10px 14px;margin:12px 0}
+.printhead{display:none;border:2px solid #0f172a;border-radius:8px;padding:10px 16px;margin-bottom:14px}
+.printhead h1{font-size:19px;margin:0 0 6px}.printhead table td{padding:1px 10px 1px 0;vertical-align:top}
+footer{text-align:center;color:#64748b;font-size:13px;margin-top:26px}
+body.printing .panel{display:block}
+@media print{
+  body{background:#fff}#app{max-width:none;padding:0}
+  .noprint,.ctrl,.tabs,.mh{display:none!important}
+  .panel{display:block!important;box-shadow:none;padding:6px 0;margin:0 0 10px}
+  .printhead{display:block}
+  .lab,.qz,table.data,.konsep,.ask{break-inside:avoid}
+  .stage canvas{max-width:78%}
+  textarea,input[type=text],select{border:1px solid #94a3b8}
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+'use strict';
+/* ================= PENYIMPANAN ================= */
+const KEY='termolab_v1';
+let S=null;try{S=JSON.parse(localStorage.getItem(KEY))}catch(e){}
+S=Object.assign({id:{kelas:'',kelompok:'',anggota:['','','','','']},f:{},t:{},q:{}},S||{});
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const $=(s,r=document)=>r.querySelector(s),$$=(s,r=document)=>[...r.querySelectorAll(s)];
+const app=$('#app'),R=8.31;
+const fmt=x=>{if(typeof x!='number')return x;if(!isFinite(x))return '–';if(Math.abs(x)<1e-9)return '0';return String(Number(x.toPrecision(4))).replace('.',',')};
+const num=s=>parseFloat(String(s).replace(',','.'));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function grow(e){if(e.tagName=='TEXTAREA'){e.style.height='auto';e.style.height=(e.scrollHeight+2)+'px'}}
+
+/* ================= PEMBANTU HTML ================= */
+let KP='',kn=0;const K=()=>KP+'.'+(kn++);
+const ask=(q,r=2)=>`<div class="ask"><label>${q}</label><textarea data-k="${K()}" rows="${r}" placeholder="Tulis jawaban kelompokmu…"></textarea></div>`;
+const pick=(q,opts,a)=>`<div class="pick"><span>${q}</span><select data-k="${K()}" data-a="${a}"><option value="">— pilih —</option>${opts.map((o,i)=>`<option value="${i}">${o}</option>`).join('')}</select></div>`;
+const step=t=>`<div class="step">${t}</div>`;
+const BS=['Benar','Salah'];
+function mark(e){if(e.dataset.a==null)return;e.classList.toggle('ok',e.value!==''&&e.value===e.dataset.a);e.classList.toggle('no',e.value!==''&&e.value!==e.dataset.a)}
+function bindFields(root){$$('[data-k]',root).forEach(e=>{const k=e.dataset.k;e.value=S.f[k]??'';const up=()=>{S.f[k]=e.value;save();mark(e);grow(e)};e.oninput=up;e.onchange=up;mark(e)})}
+
+/* ================= GAMBAR ================= */
+function tcol(T,a=1){const h=Math.max(0,Math.min(240,240-(T-100)/700*240));return `hsla(${h},85%,48%,${a})`}
+function mkPs(n){return Array.from({length:n},()=>({x:Math.random(),y:Math.random(),vx:Math.random()*2-1,vy:Math.random()*2-1}))}
+function drawCyl(g,x,y,w,h,o){
+  const gw=Math.max(20,w*o.frac),sp=Math.sqrt(Math.max(o.T,1)/300)*(o.dt||0)*160;let hits=0;
+  g.save();g.fillStyle=tcol(o.T,.15);g.fillRect(x,y,gw,h);g.fillStyle=tcol(o.T);
+  const n=Math.min(Math.round(o.n||40),o.ps.length);
+  for(let i=0;i<n;i++){const p=o.ps[i];p.x+=p.vx*sp/gw;p.y+=p.vy*sp/h;
+    if(p.x<0){p.x=-p.x;p.vx=-p.vx;hits++}if(p.x>1){p.x=2-p.x;p.vx=-p.vx;hits++}
+    if(p.y<0){p.y=-p.y;p.vy=-p.vy;hits++}if(p.y>1){p.y=2-p.y;p.vy=-p.vy;hits++}
+    p.x=Math.max(0,Math.min(1,p.x));p.y=Math.max(0,Math.min(1,p.y));
+    g.beginPath();g.arc(x+p.x*gw,y+p.y*h,3,0,7);g.fill()}
+  const lw=o.insul?10:4;g.strokeStyle=o.insul?'#d97706':'#334155';g.lineWidth=lw;
+  g.beginPath();g.moveTo(x+w+18,y-lw/2);g.lineTo(x-lw/2,y-lw/2);g.lineTo(x-lw/2,y+h+lw/2);g.lineTo(x+w+18,y+h+lw/2);g.stroke();
+  g.fillStyle='#64748b';g.fillRect(x+gw,y,12,h);g.fillRect(x+gw+12,y+h/2-4,(w-gw)+18,8);
+  g.textAlign='center';
+  if(o.lock){g.font='18px sans-serif';g.fillText('🔒',x+gw+6,y-12)}
+  if(o.insul){g.font='bold 11px sans-serif';g.fillStyle='#b45309';g.fillText('dinding terisolasi',x+w/2,y-14)}
+  if(o.heat){g.font='26px sans-serif';g.fillText(o.heat>0?'🔥':'❄️',x+gw/2,y+h+36)}
+  g.restore();return hits}
+function drawGraph(g,x,y,w,h,o){
+  const X=a=>x+a/o.xm*w,Y=b=>y+h-Math.max(0,Math.min(b,o.ym*1.03))/o.ym*h;
+  g.save();g.lineWidth=1;g.font='11px sans-serif';
+  for(let i=0;i<=5;i++){const xx=x+w*i/5,yy=y+h-h*i/5;g.strokeStyle='#e2e8f0';g.beginPath();g.moveTo(xx,y);g.lineTo(xx,y+h);g.moveTo(x,yy);g.lineTo(x+w,yy);g.stroke();
+    g.fillStyle='#64748b';g.textAlign='center';g.fillText(fmt(o.xm*i/5),xx,y+h+14);g.textAlign='right';g.fillText(fmt(o.ym*i/5),x-5,yy+4)}
+  g.strokeStyle='#334155';g.lineWidth=2;g.beginPath();g.moveTo(x,y);g.lineTo(x,y+h);g.lineTo(x+w,y+h);g.stroke();
+  g.fillStyle='#0f172a';g.font='bold 12px sans-serif';g.textAlign='center';g.fillText(o.xl,x+w/2,y+h+30);
+  g.save();g.translate(x-42,y+h/2);g.rotate(-Math.PI/2);g.fillText(o.yl,0,0);g.restore();
+  const path=p=>{g.beginPath();p.forEach((q,i)=>i?g.lineTo(X(q[0]),Y(q[1])):g.moveTo(X(q[0]),Y(q[1])))};
+  (o.fills||[]).forEach(f=>{if(f.pts.length<2)return;path(f.pts);const a=f.pts[0],b=f.pts[f.pts.length-1];g.lineTo(X(b[0]),Y(0));g.lineTo(X(a[0]),Y(0));g.closePath();g.fillStyle=f.col;g.fill()});
+  (o.polys||[]).forEach(f=>{path(f.pts);g.closePath();g.fillStyle=f.col;g.fill()});
+  (o.curves||[]).forEach(c=>{path(c.pts);g.strokeStyle=c.col;g.lineWidth=c.w||2.5;g.setLineDash(c.dash||[]);g.stroke();g.setLineDash([])});
+  (o.dots||[]).forEach(d=>{g.fillStyle=d[2]||'#f97316';g.beginPath();g.arc(X(d[0]),Y(d[1]),4,0,7);g.fill()});
+  if(o.pt){g.fillStyle='#dc2626';g.strokeStyle='#fff';g.lineWidth=2;g.beginPath();g.arc(X(o.pt[0]),Y(o.pt[1]),6,0,7);g.fill();g.stroke()}
+  g.restore()}
+function arrow(g,x1,y1,x2,y2,wd,col){const a=Math.atan2(y2-y1,x2-x1),L=Math.hypot(x2-x1,y2-y1),hd=Math.min(L,Math.max(12,wd*.9));
+  g.save();g.translate(x1,y1);g.rotate(a);g.fillStyle=col;g.fillRect(0,-wd/2,L-hd,wd);g.beginPath();g.moveTo(L-hd,-wd/2-6);g.lineTo(L,0);g.lineTo(L-hd,wd/2+6);g.fill();g.restore()}
+function txt(g,s,x,y,o={}){g.save();g.font=(o.b===false?'':'bold ')+(o.s||12)+'px sans-serif';g.fillStyle=o.c||'#0f172a';g.textAlign=o.a||'left';g.fillText(s,x,y);g.restore()}
+function drawBars(g,x,y,w,h,it,max,signed){const bw=w/it.length,z=signed?y+h/2:y+h,sc=(signed?h/2:h)/max;
+  g.save();g.strokeStyle='#334155';g.lineWidth=1.5;g.beginPath();g.moveTo(x,z);g.lineTo(x+w,z);g.stroke();
+  it.forEach((b,i)=>{const bh=Math.max(-max,Math.min(max,b.v))*sc,cx=x+i*bw+bw/2;g.fillStyle=b.col;g.fillRect(cx-bw*.3,z-bh,bw*.6,bh);
+    txt(g,b.l,cx,y+h+16,{a:'center'});txt(g,fmt(b.v)+' J',cx,z-bh+(bh>=0?-6:14),{a:'center',b:false})});g.restore()}
+function drawFlow(g,cx,y,o){
+  const sc=E=>3+Math.abs(E)/o.max*30,box=(yy,f,s,t)=>{g.fillStyle=f;g.strokeStyle=s;g.lineWidth=2;g.fillRect(cx-115,yy,230,40);g.strokeRect(cx-115,yy,230,40);txt(g,t,cx,yy+25,{a:'center',c:s,s:13})};
+  box(y,'#fecaca','#b91c1c','Reservoir panas'+(o.TH?' ('+fmt(o.TH)+' K)':''));
+  box(y+228,'#bfdbfe','#1d4ed8','Reservoir dingin'+(o.TC?' ('+fmt(o.TC)+' K)':''));
+  const my=y+134;
+  if(!o.fr){arrow(g,cx,y+42,cx,my-32,sc(o.QH),'#ef4444');if(o.QC>0)arrow(g,cx,my+32,cx,y+226,sc(o.QC),'#3b82f6');if(o.W>0)arrow(g,cx+32,my,cx+125,my,sc(o.W),'#16a34a')}
+  else{arrow(g,cx,y+226,cx,my+32,sc(o.QC),'#3b82f6');arrow(g,cx,my-32,cx,y+42,sc(o.QH),'#ef4444');arrow(g,cx+125,my,cx+32,my,sc(o.W),'#16a34a')}
+  g.fillStyle='#fde68a';g.strokeStyle='#92400e';g.lineWidth=3;g.beginPath();g.arc(cx,my,32,0,7);g.fill();g.stroke();
+  txt(g,o.name||'Mesin',cx,my+4,{a:'center'});
+  txt(g,'Q_H = '+fmt(o.QH)+' J',cx+28,y+72,{c:'#b91c1c'});txt(g,'Q_C = '+fmt(o.QC)+' J',cx+28,y+204,{c:'#1d4ed8'});txt(g,'W = '+fmt(o.W)+' J',cx+132,my+4,{c:'#15803d'})}
+
+/* ================= MESIN LAB ================= */
+function lab(host,c,key){
+  const v={},st={};
+  host.innerHTML=`<div class="lab"><div class="stage"><canvas width="${c.w||680}" height="${c.h||300}"></canvas><div class="read"></div></div><div class="ctrl">`+
+    (c.sliders||[]).map(s=>`<label class="sl"><span>${s.l}: <b data-o="${s.id}"></b> ${s.u||''}</span><input type="range" data-s="${s.id}" min="${s.min}" max="${s.max}" step="${s.step||1}" value="${s.val}"></label>`).join('')+
+    (c.selects||[]).map(s=>`<label class="sl"><span>${s.l}</span><select data-s="${s.id}">${s.o.map(o=>`<option value="${o[0]}">${o[1]}</option>`).join('')}</select></label>`).join('')+
+    (c.btns||[]).map((b,i)=>`<button class="btn sm" data-b="${i}">${b.l}</button>`).join('')+
+    (c.cols?`<button class="btn sm rec">📋 Catat data</button>`:'')+`</div></div>`+(c.cols?`<table class="data"></table>`:'');
+  const cv=$('canvas',host),g=cv.getContext('2d'),rd=$('.read',host),tb=$('table',host);
+  const els=$$('[data-s]',host),rdv=e=>{const id=e.dataset.s;v[id]=e.type=='range'?+e.value:e.value;const o=$(`[data-o="${id}"]`,host);if(o)o.textContent=fmt(v[id])};
+  els.forEach(rdv);els.forEach(e=>{const up=()=>{rdv(e);c.chg&&c.chg(v,st)};e.oninput=up;e.onchange=up});
+  $$('[data-b]',host).forEach(b=>b.onclick=()=>c.btns[+b.dataset.b].f(v,st));
+  const rows=S.t[key]||(S.t[key]=[]);st.rows=rows;
+  const drawT=()=>{if(!tb)return;tb.innerHTML=`<tr>${c.cols.map(h=>`<th>${h}</th>`).join('')}<th class="noprint"></th></tr>`+
+    (rows.length?rows.map((r,i)=>`<tr>${r.map(x=>`<td>${x}</td>`).join('')}<td class="noprint"><button data-d="${i}" title="Hapus baris">✕</button></td></tr>`).join(''):
+    `<tr><td colspan="${c.cols.length+1}" style="color:#64748b">Belum ada data — atur simulasi lalu tekan “Catat data”.</td></tr>`)};
+  if(tb){drawT();tb.onclick=e=>{if(e.target.dataset.d!=null){rows.splice(+e.target.dataset.d,1);save();drawT()}};
+    $('.rec',host).onclick=()=>{if(rows.length>=10){alert('Maksimal 10 baris data. Hapus baris yang tidak perlu.');return}rows.push(c.row(v,st).map(fmt));save();drawT()}}
+  c.init&&c.init(v,st);let last='';
+  return dt=>{g.clearRect(0,0,cv.width,cv.height);c.draw(g,v,st,dt);
+    if(c.read){const s=c.read(v,st).map(r=>`<div><span>${r[0]}</span><b>${r[1]}</b></div>`).join('');if(s!=last){rd.innerHTML=s;last=s}}}}
+function tab(el,html,...cfgs){el.innerHTML=html;const hs=$$('.host',el),kp=KP;const ts=cfgs.map((c,i)=>lab(hs[i],c,kp+'.L'+i));return dt=>ts.forEach(f=>f(dt))}
+
+/* ================= TAMPILAN ================= */
+const M=[];let cur=null;
+const score=m=>Math.round(m.quiz.filter((q,i)=>(S.q[m.id+'.'+i]||{}).ok).length*100/m.quiz.length);
+const idOK=()=>S.id.kelas.trim()&&S.id.kelompok.trim()&&S.id.anggota.filter(a=>a.trim()).length>=3;
+function home(){cur=null;document.title='Virtual Lab Termodinamika';
+  app.innerHTML=`<header class="hero"><h1>🔥 Akademi Insinyur Mesin Kalor</h1><p><b>Virtual Lab Termodinamika.</b> Kalian adalah tim insinyur muda. Selesaikan 8 misi: lakukan percobaan, catat data, temukan sendiri konsepnya, lalu buktikan dengan hitungan. Misi boleh dikerjakan dalam urutan apa pun.</p></header>
+  <section class="card"><h2>👥 Identitas Kelompok</h2><p style="margin-top:0;color:#475569">Isi dulu sebelum memulai misi (3–5 anggota). Data tersimpan otomatis di laptop ini.</p>
+  <div class="idg"><div><label>Kelas</label><input type="text" data-id="kelas" placeholder="mis. XI-3"></div><div><label>Nama kelompok</label><input type="text" data-id="kelompok" placeholder="mis. Tim Carnot"></div>
+  ${[0,1,2,3,4].map(i=>`<div><label>Anggota ${i+1}${i<3?' *':' (opsional)'}</label><input type="text" data-id="${i}" placeholder="Nama lengkap"></div>`).join('')}</div></section>
+  <h2>🗺️ Peta Misi</h2><div class="grid">${M.map((m,i)=>{const nf=Object.keys(S.f).filter(k=>k.startsWith(m.id+'.')&&String(S.f[k]).trim()).length;
+    return `<a class="mc" role="button" tabindex="0" data-go="${m.id}" style="--c:${m.col}"><div class="ico">${m.ico}</div><div class="no">MISI ${i+1}</div><h3>${m.name}</h3><p>${m.sub}</p><span class="pg">${nf?'✍️ '+nf+' isian · ':''}🎯 Skor ${score(m)}</span></a>`}).join('')}</div>
+  <footer>Satu misi untuk satu pertemuan · Tekan “Cetak PDF” di dalam misi untuk membuat laporan kelompok.</footer>`;
+  $$('[data-id]').forEach(e=>{const k=e.dataset.id,isA=/^\d$/.test(k);e.value=isA?S.id.anggota[+k]:S.id[k];e.oninput=()=>{if(isA)S.id.anggota[+k]=e.value;else S.id[k]=e.value;save()}})}
+function openMission(m){
+  const no=M.indexOf(m)+1,names=['📜 Briefing',...m.tabs.map(t=>t.t),'💡 Rumuskan Konsep','🧮 Tantangan Hitung','🖨️ Laporan'],nT=m.tabs.length;
+  cur={m,ticks:[],act:0};document.title=`Laporan Misi ${no} - ${S.id.kelas} - ${S.id.kelompok}`;
+  app.style.setProperty('--c',m.col);
+  app.innerHTML=`<header class="mh noprint"><button class="btn lt sm" data-go="">← Peta Misi</button><h1>${m.ico} Misi ${no}: ${m.name}<small>${m.sub}</small></h1><button class="btn sm" id="pr">🖨️ Cetak PDF</button></header>
+  <div class="printhead"><h1>LAPORAN VIRTUAL LAB TERMODINAMIKA — Misi ${no}: ${m.name} (${m.sub})</h1><table><tr><td>Kelas</td><td>: ${esc(S.id.kelas)}</td><td>Kelompok</td><td>: ${esc(S.id.kelompok)}</td><td>Tanggal</td><td>: ${new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'})}</td></tr><tr><td>Anggota</td><td colspan="5">: ${esc(S.id.anggota.filter(a=>a.trim()).join(', '))}</td></tr></table></div>
+  ${idOK()?'':'<div class="warn noprint">⚠️ Identitas kelompok belum lengkap. Kembali ke <u data-go="" style="color:#1d4ed8">Peta Misi</u> untuk mengisi kelas, nama kelompok, dan minimal 3 anggota.</div>'}
+  <nav class="tabs noprint">${names.map((n,i)=>`<button data-t="${i}">${n}</button>`).join('')}</nav>
+  <main>${names.map((n,i)=>`<section class="panel${i==nT+3?' noprint':''}" data-p="${i}"><h2>${n}</h2><div class="pb"></div></section>`).join('')}</main>`;
+  const pb=i=>$(`[data-p="${i}"] .pb`);
+  const setK=i=>{KP=m.id+'.'+i;kn=0};
+  setK(0);pb(0).innerHTML=`<div class="story">${m.brief}</div><h3>🎯 Target misi</h3><ul>${m.goals.map(x=>`<li>${x}</li>`).join('')}</ul>${ask('🤔 Dugaan awal kelompokmu (jawab pertanyaan pemantik di atas sebelum mencoba lab):',3)}<p class="noprint">Lanjutkan ke tab berikutnya secara berurutan →</p>`;
+  m.tabs.forEach((t,i)=>{setK(i+1);cur.ticks[i+1]=t.b(pb(i+1))});
+  setK(nT+1);const ko=m.id+'.open';
+  pb(nT+1).innerHTML=`<p>Saatnya menyimpulkan! Gunakan data dan jawaban di tab-tab sebelumnya. Tulis dengan kata-kata dan rumus kalian sendiri.</p>${m.kq.map(q=>ask(q,3)).join('')}<button class="btn noprint" id="ko">🔓 Buka Kotak Konsep</button> <span class="noprint" id="kh" style="color:#64748b"></span><div class="konsep" id="kb" hidden><h3>📦 Kotak Konsep</h3>${m.konsep}<p><i>Bandingkan dengan rumusan kalian. Jika berbeda, diskusikan penyebabnya dan tuliskan perbaikannya di kolom jawaban di atas.</i></p></div>`;
+  const kbtn=$('#ko'),kbox=$('#kb'),kopen=()=>{kbox.hidden=false;kbtn.hidden=true};
+  if(S.f[ko])kopen();kbtn.onclick=()=>{const ta=$$('textarea',pb(nT+1));if(ta.some(t=>t.value.trim().length<15)){$('#kh').textContent='Isi dulu semua kesimpulan kalian (minimal satu kalimat tiap kolom).';return}S.f[ko]='1';save();kopen()};
+  setK(nT+2);const P=pb(nT+2);
+  P.innerHTML=`<p>Kerjakan bersama kelompok. Tulis cara pengerjaan, lalu masukkan jawaban akhir (angka saja, boleh pakai koma) dan tekan <b>Periksa</b>. Tiap soal punya <b>3 kesempatan</b>. Gunakan R = 8,31 J/mol·K.</p><div class="score">Skor: <b id="sc"></b> / 100</div>`+
+    m.quiz.map((q,i)=>`<div class="qz" data-q="${i}"><div class="qn">Soal ${i+1}</div><p>${q.q}</p><div class="ask"><label>Cara pengerjaan (diketahui, ditanya, jawab):</label><textarea data-k="${m.id}.c${i}" rows="3"></textarea></div><div class="ans">Jawaban akhir: <input type="text" data-k="${m.id}.j${i}"> <b>${q.u}</b> <button class="btn sm noprint">Periksa</button> <span class="fb"></span></div></div>`).join('');
+  $$('.qz',P).forEach((d,i)=>{const q=m.quiz[i],k=m.id+'.'+i,s=S.q[k]||(S.q[k]={n:0,ok:false}),inp=$('input',d),b=$('button',d),fb=$('.fb',d);
+    const up=()=>{const done=s.ok||s.n>=3;inp.disabled=b.disabled=done;fb.style.color=s.ok?'#15803d':'#b91c1c';
+      fb.textContent=s.ok?`✅ Benar (percobaan ke-${s.n})`:s.n>=3?`❌ Kesempatan habis. Jawaban: ${fmt(q.a)} ${q.u.replace(/<[^>]+>/g,'')}`:s.n?`❌ Belum tepat. Sisa kesempatan: ${3-s.n}`:'';$('#sc').textContent=score(m)};
+    b.onclick=()=>{const x=num(inp.value);if(isNaN(x)){fb.textContent='Isi angka terlebih dahulu.';return}s.n++;s.ok=Math.abs(x-q.a)<=Math.max(.02*Math.abs(q.a),1e-9);save();up()};up()});
+  pb(nT+3).innerHTML=`<div id="rk"></div><p><button class="btn" id="pr2">🖨️ Cetak / Simpan PDF</button></p><p style="color:#475569">Pada jendela cetak pilih <b>“Save as PDF / Simpan sebagai PDF”</b> sebagai printer. Laporan memuat identitas, semua data percobaan, jawaban, kesimpulan, dan hasil Tantangan Hitung.</p><hr><p><button class="btn sm" id="rs" style="background:#dc2626">🗑️ Hapus semua jawaban misi ini</button></p>`;
+  bindFields(app);
+  const show=i=>{cur.act=i;$$('.panel').forEach(p=>p.classList.toggle('on',+p.dataset.p==i));$$('.tabs button').forEach(b=>b.classList.toggle('on',+b.dataset.t==i));$$('.panel.on textarea').forEach(grow);
+    if(i==nT+3){const fs=$$('[data-k]',app),fl=fs.filter(e=>e.value.trim()).length,tr=$$('table.data',app).map(t=>t.rows.length-1-(t.querySelector('td[colspan]')?1:0));
+      $('#rk').innerHTML=`<h3>Rekap pengerjaan</h3><ul><li>Isian terjawab: <b>${fl} dari ${fs.length}</b></li><li>Tabel data terisi: <b>${tr.filter(n=>n>0).length} dari ${tr.length}</b> (total ${tr.reduce((a,b)=>a+b,0)} baris)</li><li>Kotak Konsep: <b>${S.f[ko]?'sudah dibuka':'belum dibuka'}</b></li><li>Skor Tantangan Hitung: <b>${score(m)} / 100</b></li></ul>`}};
+  $$('.tabs button').forEach(b=>b.onclick=()=>{show(+b.dataset.t);window.scrollTo(0,0)});
+  const pr=()=>{document.body.classList.add('printing');$$('textarea',app).forEach(grow);cur.ticks.forEach(f=>f&&f(0));window.print();document.body.classList.remove('printing');$$('.panel.on textarea').forEach(grow)};
+  $('#pr').onclick=pr;$('#pr2').onclick=pr;
+  $('#rs').onclick=()=>{if(!confirm('Hapus SEMUA jawaban, data, dan skor misi ini? Tindakan ini tidak bisa dibatalkan.'))return;for(const o of[S.f,S.t,S.q])for(const k of Object.keys(o))if(k.startsWith(m.id+'.'))delete o[k];save();openMission(m)};
+  cur.ticks.forEach(f=>f&&f(0));show(0)}
+let tPrev=0;function loop(t){const dt=Math.min(.05,(t-tPrev)/1000||0);tPrev=t;if(cur){const f=cur.ticks[cur.act];if(f)try{f(dt)}catch(e){console.error(e)}}requestAnimationFrame(loop)}
+function route(){const m=M.find(x=>x.id==S.cur);window.scrollTo(0,0);m?openMission(m):home()}
+
+/* ================= ISI MISI ================= */
+/* ---------- MISI 1 ---------- */
+function gcfg(o){const ps=mkPs(60);return{sliders:o.sl,
+  draw(g,v,st,dt){const s=o.calc(v);drawCyl(g,30,70,250,130,{frac:s.V/o.vm,T:s.T,ps,dt,n:20*s.n,lock:o.lock});
+    drawGraph(g,375,25,280,220,{xm:o.xm,ym:o.ym,xl:o.xl,yl:o.yl,dots:st.rows.map(r=>[num(r[o.gi[0]]),num(r[o.gi[1]])]),pt:o.g(s)});
+    txt(g,o.note,30,30,{c:'#475569'})},
+  read(v){const s=o.calc(v);return[['Tekanan P',fmt(s.P)+' kPa'],['Volume V',fmt(s.V)+' L'],['Suhu T',fmt(s.T)+' K'],['Jumlah zat n',fmt(s.n)+' mol']]},
+  cols:o.cols,row:v=>o.row(o.calc(v))}}
+M.push({id:'m1',ico:'🎈',name:'Menjinakkan Gas',sub:'Karakteristik Gas Ideal',col:'#0284c7',
+brief:`<b>Laporan masuk ke Akademi:</b> sebuah ban sepeda yang dijemur di siang terik tiba-tiba meletus, padahal tidak ada yang memompanya. Sebelum merancang mesin, insinyur harus paham dulu perilaku gas.<br><br><b>Pertanyaan pemantik:</b> Apa yang sebenarnya dilakukan partikel-partikel gas di dalam ban? Mengapa menaikkan suhu bisa membuat ban meletus?`,
+goals:['Mengamati gerak partikel gas dan mendaftar ciri-ciri gas ideal.','Menemukan hubungan P–V, V–T, dan P–T dari data percobaan.','Menggabungkan ketiganya menjadi satu persamaan keadaan gas ideal.'],
+tabs:[
+{t:'🔬 Dunia Partikel',b:el=>tab(el,`${step('<b>Langkah:</b> Ubah jumlah partikel dan suhu. Amati gerak partikel dan angka <b>tumbukan ke dinding per detik</b> (tunggu beberapa detik agar angkanya stabil), lalu catat minimal 4 data.')}<div class="host"></div>
+${ask('Deskripsikan gerak partikel gas: arah, lintasan, dan apa yang terjadi ketika menabrak dinding.')}${ask('Apa pengaruh suhu terhadap kelajuan partikel dan jumlah tumbukan ke dinding? Hubungkan dengan <b>tekanan</b> gas.')}
+<h3>Ciri gas ideal — Benar atau Salah?</h3>${pick('Partikel gas bergerak acak ke segala arah dengan lintasan lurus.',BS,0)}${pick('Ukuran partikel sangat kecil dibanding jarak antarpartikel, sehingga volume partikel dapat diabaikan.',BS,0)}${pick('Antarpartikel gas ideal terjadi gaya tarik-menarik yang kuat.',BS,1)}${pick('Tumbukan antarpartikel dan dengan dinding bersifat lenting sempurna (energi kinetik total tidak berkurang).',BS,0)}${pick('Makin tinggi suhu gas, makin lambat gerak partikelnya.',BS,1)}`,
+ (()=>{const ps=mkPs(80);return{sliders:[{id:'N',l:'Jumlah partikel',min:10,max:80,step:10,val:30},{id:'T',l:'Suhu',min:100,max:900,step:100,val:300,u:'K'}],
+  init(v,st){st.h=0;st.tm=0;st.rate=0},chg(v,st){st.h=0;st.tm=0},
+  draw(g,v,st,dt){st.h+=drawCyl(g,120,60,440,170,{frac:1,T:v.T,ps,dt,n:v.N,lock:true});st.tm+=dt;if(st.tm>=3){st.rate=st.h/st.tm;st.h=0;st.tm=0}},
+  read:(v,st)=>[['Tumbukan ke dinding',fmt(Math.round(st.rate))+' kali/detik'],['Suhu',fmt(v.T)+' K']],
+  cols:['Jumlah partikel','Suhu (K)','Tumbukan/detik'],row:(v,st)=>[v.N,v.T,Math.round(st.rate)]}})())},
+{t:'🧪 Uji P–V',b:el=>tab(el,`${step('<b>Suhu dijaga tetap 300 K.</b> Geser volume, amati tekanan. Catat minimal 5 data, lalu perhatikan kolom <b>P × V</b>.')}<div class="host"></div>
+${ask('Ketika volume diperkecil menjadi setengahnya, apa yang terjadi pada tekanan? Jelaskan dengan gerak partikel.')}${ask('Bagaimana nilai P × V pada semua datamu? Tuliskan hubungan P dan V pada suhu tetap (kalimat dan rumus).')}${ask('Bagaimana bentuk grafik P terhadap V yang terbentuk dari titik-titik datamu?')}`,
+ gcfg({note:'Suhu tetap: T = 300 K, n = 1 mol',sl:[{id:'V',l:'Volume',min:5,max:25,step:1,val:10,u:'L'}],calc:v=>({n:1,T:300,V:v.V,P:R*300/v.V}),vm:25,xm:25,ym:500,xl:'V (L)',yl:'P (kPa)',g:s=>[s.V,s.P],gi:[0,1],cols:['V (L)','P (kPa)','P × V'],row:s=>[s.V,s.P,s.P*s.V]}))},
+{t:'🌡️ Uji V–T',b:el=>tab(el,`${step('<b>Tekanan dijaga tetap 100 kPa</b> (piston bebas bergerak). Ubah suhu, amati volume. Catat minimal 5 data, perhatikan kolom <b>V / T</b>.')}<div class="host"></div>
+${ask('Apa yang terjadi pada volume ketika suhu mutlak dijadikan dua kali semula?')}${ask('Bagaimana nilai V / T pada semua datamu? Tuliskan hubungan V dan T pada tekanan tetap.')}${ask('Titik-titik datamu membentuk garis lurus. Jika garis itu diperpanjang ke kiri, pada suhu berapa volume gas menjadi nol? Apa arti suhu tersebut?')}`,
+ gcfg({note:'Tekanan tetap: P = 100 kPa, n = 1 mol',sl:[{id:'T',l:'Suhu',min:150,max:600,step:50,val:300,u:'K'}],calc:v=>({n:1,T:v.T,V:R*v.T/100,P:100}),vm:55,xm:600,ym:60,xl:'T (K)',yl:'V (L)',g:s=>[s.T,s.V],gi:[0,1],cols:['T (K)','V (L)','V / T'],row:s=>[s.T,s.V,s.V/s.T]}))},
+{t:'🔒 Uji P–T',b:el=>tab(el,`${step('<b>Volume dikunci 20 L</b> (piston tidak bisa bergerak). Ubah suhu, amati tekanan. Catat minimal 5 data, perhatikan kolom <b>P / T</b>.')}<div class="host"></div>
+${ask('Bagaimana nilai P / T pada semua datamu? Tuliskan hubungan P dan T pada volume tetap.')}${ask('Sekarang jelaskan kasus ban sepeda yang meletus saat dijemur dengan hasil percobaan ini.')}`,
+ gcfg({note:'Volume tetap: V = 20 L, n = 1 mol',lock:true,sl:[{id:'T',l:'Suhu',min:150,max:600,step:50,val:300,u:'K'}],calc:v=>({n:1,T:v.T,V:20,P:R*v.T/20}),vm:40,xm:600,ym:250,xl:'T (K)',yl:'P (kPa)',g:s=>[s.T,s.P],gi:[0,1],cols:['T (K)','P (kPa)','P / T'],row:s=>[s.T,s.P,s.P/s.T]}))},
+{t:'🧩 Persamaan Gas',b:el=>tab(el,`${step('Sekarang <b>semua besaran boleh diubah</b>: jumlah zat n, suhu T, dan volume V. Catat minimal 6 data yang sangat berbeda-beda, lalu perhatikan dua kolom terakhir.')}<div class="host"></div>
+${ask('Untuk n yang sama, bagaimana nilai PV/T? Bagaimana jika n diubah?')}${ask('Berapa nilai PV/(nT) pada semua datamu? Nilai tetap ini disebut tetapan gas umum (R). Tuliskan persamaan yang menghubungkan P, V, n, dan T.')}`,
+ gcfg({note:'Bebas: ubah n, T, dan V',sl:[{id:'n',l:'Jumlah zat n',min:.5,max:3,step:.5,val:1,u:'mol'},{id:'T',l:'Suhu',min:150,max:600,step:50,val:300,u:'K'},{id:'V',l:'Volume',min:5,max:25,step:1,val:10,u:'L'}],calc:v=>({n:v.n,T:v.T,V:v.V,P:v.n*R*v.T/v.V}),vm:25,xm:25,ym:3000,xl:'V (L)',yl:'P (kPa)',g:s=>[s.V,s.P],gi:[2,3],cols:['n (mol)','T (K)','V (L)','P (kPa)','PV / T','PV / (nT)'],row:s=>[s.n,s.T,s.V,s.P,s.P*s.V/s.T,s.P*s.V/(s.n*s.T)]}))}],
+kq:['Tuliskan ciri-ciri gas ideal menurut hasil pengamatan kelompokmu.','Tuliskan tiga hubungan yang kalian temukan (P–V, V–T, P–T) beserta syaratnya.','Tuliskan persamaan keadaan gas ideal dan arti setiap simbolnya.'],
+konsep:`<p><b>Gas ideal:</b> partikel sangat banyak, bergerak acak, ukurannya diabaikan, tidak saling tarik-menarik, dan tumbukannya lenting sempurna. Tekanan gas berasal dari tumbukan partikel ke dinding.</p>
+<span class="rumus">Boyle (T tetap): P₁V₁ = P₂V₂</span><span class="rumus">Charles (P tetap): V₁/T₁ = V₂/T₂</span><span class="rumus">Gay-Lussac (V tetap): P₁/T₁ = P₂/T₂</span><br>
+<span class="rumus">Boyle–Gay-Lussac: P₁V₁/T₁ = P₂V₂/T₂</span><span class="rumus">PV = nRT</span>
+<p>R = 8,31 J/mol·K; T harus dalam kelvin (K = °C + 273); 1 L = 10⁻³ m³; 1 kPa·L = 1 J.</p>`,
+quiz:[
+{q:'Gas ideal bervolume 2 L dan bertekanan 100 kPa dimampatkan pada suhu tetap hingga volumenya 0,5 L. Berapakah tekanan gas sekarang?',a:400,u:'kPa'},
+{q:'Gas ideal bervolume 3 L pada suhu 27 °C dipanaskan pada tekanan tetap hingga suhunya 127 °C. Berapakah volume gas sekarang?',a:4,u:'L'},
+{q:'Tekanan udara di dalam ban 200 kPa pada suhu 27 °C. Setelah dijemur suhunya menjadi 57 °C. Jika volume ban dianggap tetap, berapakah tekanan udara di dalam ban sekarang?',a:220,u:'kPa'},
+{q:'Sebanyak 2 mol gas ideal bersuhu 27 °C berada dalam tabung bertekanan 1,5 × 10⁵ Pa. Berapakah volume gas tersebut? (R = 8,31 J/mol·K)',a:2*R*300/1.5e5*1000,u:'L'},
+{q:'Gas ideal bervolume 6 L, bersuhu 27 °C, dan bertekanan 2 atm dimampatkan hingga volumenya 4 L sementara suhunya naik menjadi 127 °C. Berapakah tekanan gas sekarang?',a:4,u:'atm'}]});
+
+/* ---------- MISI 2 ---------- */
+M.push({id:'m2',ico:'🫙',name:'Menarik Garis Batas',sub:'Sistem & Lingkungan',col:'#7c3aed',
+brief:`<b>Tantangan dari kantin Akademi:</b> teh panas di gelas terbuka cepat sekali dingin, sedangkan teh di dalam termos masih panas sampai sore. Seorang insinyur harus bisa menentukan dengan jelas <i>apa yang sedang ia amati</i> dan <i>apa yang ada di luarnya</i>.<br><br><b>Pertanyaan pemantik:</b> Apa bedanya teh di gelas dan teh di termos? Apa saja yang bisa “keluar-masuk” dari teh itu?`,
+goals:['Membedakan sistem, batas sistem, dan lingkungan.','Menggolongkan sistem terbuka, tertutup, dan terisolasi berdasarkan percobaan.','Menentukan tanda kalor (Q) dan usaha (W) pada sistem.'],
+tabs:[
+{t:'🎯 Sistem vs Lingkungan',b:el=>tab(el,`${step('Perhatikan gambar percobaan: gas di dalam tabung berpiston dipanaskan dengan api. <b>Yang ingin kita pelajari adalah gasnya.</b> Golongkan setiap bagian.')}
+<svg viewBox="0 0 640 230" style="width:100%;max-width:640px;display:block;margin:auto;background:#f8fafc;border-radius:10px">
+<rect x="0" y="0" width="640" height="230" fill="#e0f2fe"/><text x="450" y="40" font-size="14" fill="#0369a1">udara di sekitar tabung</text>
+<rect x="150" y="60" width="260" height="110" fill="#fee2e2" stroke="#334155" stroke-width="5"/><rect x="330" y="62" width="16" height="106" fill="#64748b"/><rect x="346" y="110" width="110" height="10" fill="#64748b"/>
+<rect x="345" y="62" width="70" height="106" fill="#e0f2fe" stroke="none"/><rect x="346" y="110" width="110" height="10" fill="#64748b"/>
+<g fill="#dc2626"><circle cx="180" cy="90" r="4"/><circle cx="230" cy="140" r="4"/><circle cx="270" cy="85" r="4"/><circle cx="300" cy="130" r="4"/><circle cx="200" cy="120" r="4"/><circle cx="250" cy="110" r="4"/></g>
+<text x="175" y="52" font-size="14" fill="#334155">dinding tabung</text><text x="318" y="52" font-size="14" fill="#334155">piston</text><text x="190" y="160" font-size="14" fill="#991b1b">gas</text>
+<text x="225" y="212" font-size="30">🔥</text><text x="270" y="208" font-size="14" fill="#9a3412">api pemanas</text></svg>
+${pick('Gas di dalam tabung',['Sistem','Batas sistem','Lingkungan'],0)}${pick('Dinding tabung dan piston',['Sistem','Batas sistem','Lingkungan'],1)}${pick('Udara di sekitar tabung',['Sistem','Batas sistem','Lingkungan'],2)}${pick('Api pemanas',['Sistem','Batas sistem','Lingkungan'],2)}
+<h3>Kasus kedua: secangkir teh panas di atas meja (yang diamati: air teh)</h3>${pick('Air teh',['Sistem','Batas sistem','Lingkungan'],0)}${pick('Cangkir dan permukaan air teh',['Sistem','Batas sistem','Lingkungan'],1)}${pick('Meja dan udara ruangan',['Sistem','Batas sistem','Lingkungan'],2)}
+${ask('Dengan kata-katamu sendiri: apa yang dimaksud <b>sistem</b>, <b>lingkungan</b>, dan <b>batas sistem</b>?')}${ask('Jika yang ingin dipelajari diganti menjadi “udara di dalam ruangan”, apakah air teh masih disebut sistem? Jelaskan.')}`)},
+{t:'♨️ Tiga Jenis Sistem',b:el=>tab(el,`${step('Air panas 90 °C (500 g) berada dalam wadah di ruangan bersuhu 27 °C. Pilih <b>tutup</b> dan <b>jenis dinding</b>, tunggu sekitar <b>20 menit simulasi</b> (1 detik = 1 menit), lalu catat. Lakukan untuk kombinasi: terbuka–dinding biasa, tertutup–dinding biasa, tertutup–terisolasi.')}<div class="host"></div>
+${ask('Pada wadah mana massa air berubah? Pada wadah mana suhu air berubah? Apa artinya bagi perpindahan <b>materi</b> dan <b>energi</b>?')}
+<h3>Simpulkan dari datamu</h3>${pick('Sistem <b>terbuka</b>: materi dapat keluar-masuk?',['Ya','Tidak'],0)}${pick('Sistem <b>terbuka</b>: energi dapat keluar-masuk?',['Ya','Tidak'],0)}${pick('Sistem <b>tertutup</b>: materi dapat keluar-masuk?',['Ya','Tidak'],1)}${pick('Sistem <b>tertutup</b>: energi dapat keluar-masuk?',['Ya','Tidak'],0)}${pick('Sistem <b>terisolasi</b>: materi dapat keluar-masuk?',['Ya','Tidak'],1)}${pick('Sistem <b>terisolasi</b>: energi dapat keluar-masuk?',['Ya','Tidak'],1)}
+<h3>Golongkan contoh berikut</h3>${[['Air mendidih di panci tanpa tutup',0],['Minuman dalam botol tertutup rapat di dalam kulkas',1],['Teh panas di dalam termos yang sangat baik',2],['Gas di dalam tabung berpiston rapat yang dipanaskan',1],['Tubuh manusia',0]].map(x=>pick(x[0],['Sistem terbuka','Sistem tertutup','Sistem terisolasi'],x[1])).join('')}`,
+ {selects:[{id:'tutup',l:'Tutup wadah',o:[['buka','Terbuka (tanpa tutup)'],['tutup','Tertutup rapat']]},{id:'dinding',l:'Dinding wadah',o:[['biasa','Dinding biasa (logam tipis)'],['iso','Dinding terisolasi (seperti termos)']]}],
+  btns:[{l:'↺ Ulangi dari awal',f:(v,st)=>{st.m=500;st.T=90;st.t=0}}],
+  init(v,st){st.m=500;st.T=90;st.t=0},chg(v,st){st.m=500;st.T=90;st.t=0},
+  draw(g,v,st,dt){const open=v.tutup=='buka',ins=v.dinding=='iso',k=(ins?0:.05)+(open?.04:0);
+    st.t+=dt;if(open)st.m=Math.max(0,st.m-1.5*(st.T-27)/63*dt);st.T-=k*(st.T-27)*dt;
+    const x=230,y=70,w=220,h=180,lv=h*.8*st.m/500;
+    if(ins){g.fillStyle='#fcd34d';g.fillRect(x-16,y-(open?0:16),w+32,h+16+(open?0:16))}
+    g.fillStyle='#fff';g.fillRect(x,y,w,h);g.fillStyle=tcol(100+(st.T-27)/63*700,.55);g.fillRect(x,y+h-lv,w,lv);
+    g.strokeStyle='#334155';g.lineWidth=5;g.beginPath();g.moveTo(x,y);g.lineTo(x,y+h);g.lineTo(x+w,y+h);g.lineTo(x+w,y);g.stroke();
+    if(!open){g.fillStyle='#334155';g.fillRect(x-8,y-9,w+16,9)}
+    if(open&&st.T>32)for(let i=0;i<8;i++){const ph=(st.t*.5+i/8)%1;g.fillStyle=`rgba(100,116,139,${.7*(1-ph)})`;g.beginPath();g.arc(x+w*(.14+.1*i)+10*Math.sin(st.t*2+i),y+h-lv-ph*(h-lv+55),6,0,7);g.fill()}
+    if(!ins&&st.T>28.5){const a=4+(st.T-27)/63*10;arrow(g,x-8,y+h-60,x-80,y+h-60,a,'#f97316');arrow(g,x+w+8,y+h-60,x+w+80,y+h-60,a,'#f97316');txt(g,'kalor',x-78,y+h-78,{c:'#c2410c'});txt(g,'kalor',x+w+42,y+h-78,{c:'#c2410c'})}
+    if(open&&st.T>32)txt(g,'uap air keluar',x+w/2,y-38,{a:'center',c:'#475569'});
+    txt(g,'Udara ruangan 27 °C',20,24,{c:'#0369a1'});txt(g,'air '+Math.round(st.T)+' °C',x+w/2,y+h-12,{a:'center',c:'#fff',s:15})},
+  read:(v,st)=>[['Waktu',Math.round(st.t)+' menit'],['Massa air',Math.round(st.m)+' g'],['Suhu air',Math.round(st.T)+' °C']],
+  cols:['Tutup','Dinding','Waktu (menit)','Massa air (g)','Suhu air (°C)'],row:(v,st)=>[v.tutup=='buka'?'Terbuka':'Tertutup',v.dinding=='iso'?'Terisolasi':'Biasa',Math.round(st.t),Math.round(st.m),Math.round(st.T)]})},
+{t:'↔️ Arah Kalor & Usaha',b:el=>tab(el,`${step('Sistem kita adalah <b>gas di dalam tabung</b>. Tekan tiap tombol, amati apa yang terjadi pada gas dan <b>tanda (+/−)</b> yang muncul. Para insinyur sepakat memakai perjanjian tanda ini agar hitungan energi tidak tertukar.')}<div class="host"></div>
+${ask('Kapan Q bertanda positif dan kapan negatif? Kapan W bertanda positif dan kapan negatif? Tuliskan aturan yang kamu amati.')}
+<h3>Uji pemahaman tanda</h3>${pick('Gas dipanaskan dengan pembakar sehingga menerima kalor 500 J.',['Q = +500 J','Q = −500 J'],0)}${pick('Gas panas dibiarkan mendingin dan melepas kalor 300 J ke udara.',['Q = +300 J','Q = −300 J'],1)}${pick('Gas memuai mendorong piston dan melakukan usaha 200 J.',['W = +200 J','W = −200 J'],0)}${pick('Piston ditekan dari luar; lingkungan melakukan usaha 150 J pada gas.',['W = +150 J','W = −150 J'],1)}
+${ask('Saat gas mengembang cepat tanpa dipanaskan, suhunya turun; saat ditekan, suhunya naik. Menurutmu, dari mana dan ke mana energinya berpindah?')}`,
+ (()=>{const ps=mkPs(40),go=a=>(v,st)=>{st.a=a;st.tm=2};return{
+  btns:[{l:'🔥 Beri kalor',f:go('qi')},{l:'❄️ Ambil kalor',f:go('qo')},{l:'➡️ Biarkan gas mengembang',f:go('ex')},{l:'⬅️ Tekan piston',f:go('cm')},{l:'↺ Reset',f:(v,st)=>{st.T=300;st.V=12;st.a='';st.tm=0}}],
+  init(v,st){st.T=300;st.V=12;st.a='';st.tm=0},
+  draw(g,v,st,dt){const on=st.tm>0,a=st.a;if(on){st.tm-=dt;if(a=='qi')st.T=Math.min(800,st.T+80*dt);if(a=='qo')st.T=Math.max(120,st.T-80*dt);if(a=='ex'){st.V=Math.min(22,st.V+3*dt);st.T=Math.max(120,st.T-25*dt)}if(a=='cm'){st.V=Math.max(5,st.V-3*dt);st.T=Math.min(800,st.T+25*dt)}}
+    const x=190,w=300,gw=w*st.V/25;drawCyl(g,x,90,w,130,{frac:st.V/25,T:st.T,ps,dt,heat:on?(a=='qi'?1:a=='qo'?-1:0):0});
+    if(on){if(a=='qi'){arrow(g,70,155,180,155,14,'#ef4444');txt(g,'Q masuk ke sistem  →  Q bertanda +',340,45,{a:'center',s:16,c:'#b91c1c'})}
+      if(a=='qo'){arrow(g,180,155,70,155,14,'#3b82f6');txt(g,'Q keluar dari sistem  →  Q bertanda −',340,45,{a:'center',s:16,c:'#1d4ed8'})}
+      if(a=='ex'){arrow(g,x+gw+16,125,x+gw+90,125,12,'#16a34a');txt(g,'Gas mendorong piston (sistem melakukan usaha)  →  W bertanda +',340,45,{a:'center',s:15,c:'#15803d'})}
+      if(a=='cm'){arrow(g,x+gw+100,125,x+gw+18,125,12,'#9333ea');txt(g,'Piston ditekan (sistem menerima usaha)  →  W bertanda −',340,45,{a:'center',s:15,c:'#7e22ce'})}}},
+  read:(v,st)=>{const on=st.tm>0,a=st.a;return[['Kalor Q',on&&a=='qi'?'+ (diterima sistem)':on&&a=='qo'?'− (dilepas sistem)':'0'],['Usaha W',on&&a=='ex'?'+ (dilakukan sistem)':on&&a=='cm'?'− (diterima sistem)':'0'],['Suhu',Math.round(st.T)+' K'],['Volume',fmt(Math.round(st.V*10)/10)+' L']]}}})())}],
+kq:['Jelaskan pengertian sistem, lingkungan, dan batas sistem beserta satu contoh buatan kelompokmu sendiri.','Jelaskan perbedaan sistem terbuka, tertutup, dan terisolasi.','Tuliskan perjanjian tanda untuk kalor (Q) dan usaha (W).'],
+konsep:`<p><b>Sistem</b> = bagian alam yang menjadi pusat perhatian/pengamatan. <b>Lingkungan</b> = segala sesuatu di luar sistem yang dapat berinteraksi dengannya. Keduanya dipisahkan oleh <b>batas sistem</b>.</p>
+<ul><li><b>Sistem terbuka:</b> materi dan energi dapat bertukar dengan lingkungan.</li><li><b>Sistem tertutup:</b> hanya energi (kalor/usaha) yang dapat bertukar; materi tidak.</li><li><b>Sistem terisolasi:</b> materi maupun energi tidak dapat bertukar.</li></ul>
+<span class="rumus">Q &gt; 0 : sistem menerima kalor</span><span class="rumus">Q &lt; 0 : sistem melepas kalor</span><br><span class="rumus">W &gt; 0 : sistem melakukan usaha (memuai)</span><span class="rumus">W &lt; 0 : sistem menerima usaha (dimampatkan)</span>`,
+quiz:[
+{q:'Di dalam termos (sistem terisolasi), 200 g air bersuhu 80 °C dicampur dengan 300 g air bersuhu 20 °C. Karena tidak ada kalor yang keluar ke lingkungan, berapakah suhu akhir campuran?',a:44,u:'°C'},
+{q:'Air 0,5 kg di dalam botol tertutup mendingin dari 90 °C menjadi 30 °C. Jika kalor jenis air 4200 J/kg·°C, berapakah kalor Q sistem (air) <b>lengkap dengan tandanya</b>?',a:-126,u:'kJ'},
+{q:'Sebuah pemanas listrik 500 W memanaskan gas (sistem) selama 3 menit. Ternyata 20% kalor pemanas terbuang ke lingkungan. Berapakah kalor yang diterima sistem?',a:72,u:'kJ'},
+{q:'Gas di dalam silinder mendorong piston (luas 0,02 m²) sejauh 10 cm melawan tekanan tetap 1 × 10⁵ Pa. Berapakah usaha W sistem lengkap dengan tandanya?',a:200,u:'J'},
+{q:'Lingkungan menekan piston sehingga melakukan usaha 250 J pada gas, lalu gas melepas kalor 100 J. Tuliskan nilai W sistem lengkap dengan tandanya.',a:-250,u:'J'}]});
+
+/* ---------- MISI 3 ---------- */
+M.push({id:'m3',ico:'🛠️',name:'Piston Bekerja',sub:'Usaha dalam Termodinamika',col:'#ea580c',
+brief:`<b>Bengkel Akademi</b> menerima pesanan dongkrak bertenaga gas: gas yang memuai harus mampu mengangkat beban. Klien bertanya, “Berapa besar usaha yang bisa dilakukan gas ini?”<br><br><b>Pertanyaan pemantik:</b> Di kelas X kalian mengenal usaha W = F·s. Bagaimana cara menghitung usaha jika yang kita ketahui hanya <i>tekanan</i> dan <i>volume</i> gas?`,
+goals:['Menemukan rumus usaha gas pada tekanan tetap dari W = F·s.','Menemukan makna luas daerah di bawah grafik P–V.','Menentukan tanda usaha pada pemuaian dan pemampatan.'],
+tabs:[
+{t:'🏋️ Dorong Piston',b:el=>tab(el,`${step('Gas bertekanan tetap mendorong piston (luas penampang A = 0,05 m²) dari volume awal 5 L. Atur tekanan dan volume akhir. Catat minimal 5 data, lalu bandingkan kolom <b>F × s</b> dengan <b>P × ΔV</b>.')}<div class="host"></div>
+${ask('Bandingkan nilai F × s dan P × ΔV pada setiap baris. Apa yang kamu temukan?')}${ask('Buktikan temuanmu secara matematis: mulai dari W = F·s, gunakan F = P·A dan ΔV = A·s.')}`,
+ (()=>{const ps=mkPs(40);return{sliders:[{id:'P',l:'Tekanan gas',min:100,max:400,step:50,val:200,u:'kPa'},{id:'V',l:'Volume akhir',min:6,max:25,step:1,val:12,u:'L'}],
+  calc:v=>({dV:v.V-5,F:v.P*50,s:(v.V-5)*.02}),
+  draw(g,v,st,dt){const x=110,w=420,gw=w*v.V/25;drawCyl(g,x,80,w,130,{frac:v.V/25,T:300,ps,dt});
+    g.setLineDash([6,5]);g.strokeStyle='#94a3b8';g.lineWidth=2;g.strokeRect(x+w*5/25,80,12,130);g.setLineDash([]);
+    arrow(g,x+w*5/25+6,240,x+gw+6,240,6,'#16a34a');txt(g,'perpindahan piston s = '+fmt((v.V-5)*.02)+' m',x+w*5/25+10,262,{c:'#15803d'});
+    arrow(g,x+gw-70,145,x+gw-4,145,10,'#dc2626');txt(g,'F = P·A',x+gw-72,132,{c:'#b91c1c'});txt(g,'posisi awal (5 L)',x+w*5/25-30,68,{c:'#64748b',b:false})},
+  read(v){const s=this.calc(v);return[['Gaya gas F',fmt(s.F)+' N'],['Perpindahan s',fmt(s.s)+' m'],['Usaha W = F·s',fmt(s.F*s.s)+' J']]},
+  cols:['P (kPa)','V₁ (L)','V₂ (L)','ΔV (L)','F (N)','s (m)','F × s (J)','P × ΔV (kPa·L)'],row(v){const s=this.calc(v);return[v.P,5,v.V,s.dV,s.F,s.s,s.F*s.s,v.P*s.dV]}}})())},
+{t:'📐 Luas di Bawah Grafik',b:el=>tab(el,`${step('Sekarang tekanan gas <b>boleh berubah</b> selama memuai (garis lurus dari keadaan 1 ke keadaan 2). Simulasi mengukur usaha gas. Catat minimal 4 data: 2 data dengan P₁ = P₂ dan 2 data dengan P₁ ≠ P₂.')}<div class="host"></div>
+${ask('Pilih dua baris datamu. Hitung sendiri <b>luas daerah yang diarsir</b> di bawah grafik (persegi panjang atau trapesium), tuliskan hitungannya. Ingat 1 kPa·L = 1 J.',4)}${ask('Bandingkan luas hitunganmu dengan “W terukur”. Apa makna luas daerah di bawah grafik P–V?')}`,
+ {sliders:[{id:'P1',l:'Tekanan awal P₁',min:50,max:400,step:50,val:300,u:'kPa'},{id:'P2',l:'Tekanan akhir P₂',min:50,max:400,step:50,val:300,u:'kPa'},{id:'V1',l:'Volume awal V₁',min:2,max:10,step:1,val:4,u:'L'},{id:'V2',l:'Volume akhir V₂',min:12,max:24,step:1,val:16,u:'L'}],
+  draw(g,v){const p=[[v.V1,v.P1],[v.V2,v.P2]];drawGraph(g,190,25,330,220,{xm:25,ym:500,xl:'V (L)',yl:'P (kPa)',fills:[{pts:p,col:'rgba(234,88,12,.3)'}],curves:[{pts:p,col:'#c2410c'}],dots:[[v.V1,v.P1,'#0f172a']],pt:[v.V2,v.P2]});txt(g,'1',190+v.V1/25*330-4,25+220-v.P1/500*220-10);txt(g,'2',190+v.V2/25*330-4,25+220-v.P2/500*220-12)},
+  read:v=>[['W terukur',fmt((v.P1+v.P2)/2*(v.V2-v.V1))+' J']],
+  cols:['P₁ (kPa)','P₂ (kPa)','V₁ (L)','V₂ (L)','W terukur (J)'],row:v=>[v.P1,v.P2,v.V1,v.V2,(v.P1+v.P2)/2*(v.V2-v.V1)]})},
+{t:'↔️ Ekspansi vs Kompresi',b:el=>tab(el,`${step('Gas bertekanan tetap 200 kPa, volume awal 12 L. Geser volume akhir <b>ke kanan (memuai)</b> dan <b>ke kiri (dimampatkan)</b>. Catat minimal 2 data ekspansi, 2 data kompresi, dan 1 data saat volume tidak berubah.')}<div class="host"></div>
+${ask('Kapan usaha gas bernilai positif, negatif, dan nol? Hubungkan dengan perubahan volume ΔV.')}${pick('Gas memuai (ΔV &gt; 0): siapa yang melakukan usaha?',['Gas (sistem) melakukan usaha pada lingkungan','Lingkungan melakukan usaha pada gas'],0)}${pick('Gas dimampatkan (ΔV &lt; 0): siapa yang melakukan usaha?',['Gas (sistem) melakukan usaha pada lingkungan','Lingkungan melakukan usaha pada gas'],1)}${pick('Gas dipanaskan dalam tabung tertutup kaku (volume tetap). Usaha gas …',['positif','negatif','nol'],2)}`,
+ (()=>{const ps=mkPs(40);return{sliders:[{id:'V',l:'Volume akhir',min:2,max:24,step:1,val:12,u:'L'}],
+  draw(g,v,st,dt){const W=200*(v.V-12),p=[[12,200],[v.V,200]],c=W>=0?'rgba(22,163,74,.3)':'rgba(220,38,38,.3)';drawCyl(g,30,70,250,130,{frac:v.V/25,T:300,ps,dt});
+    drawGraph(g,375,25,280,220,{xm:25,ym:400,xl:'V (L)',yl:'P (kPa)',fills:[{pts:p,col:c}],curves:[{pts:p,col:'#334155'}],dots:[[12,200,'#0f172a']],pt:[v.V,200]});
+    txt(g,W>0?'EKSPANSI — gas melakukan usaha':W<0?'KOMPRESI — gas menerima usaha':'Volume tetap',30,35,{c:W>0?'#15803d':W<0?'#b91c1c':'#475569',s:13})},
+  read:v=>[['ΔV',fmt(v.V-12)+' L'],['Usaha gas W',fmt(200*(v.V-12))+' J']],
+  cols:['P (kPa)','V₁ (L)','V₂ (L)','ΔV (L)','W (J)'],row:v=>[200,12,v.V,v.V-12,200*(v.V-12)]}})())}],
+kq:['Tuliskan rumus usaha gas pada tekanan tetap dan jelaskan asal-usulnya.','Jelaskan cara menentukan usaha dari grafik P–V, termasuk jika tekanannya berubah.','Jelaskan arti tanda positif, negatif, dan nol pada usaha gas.'],
+konsep:`<span class="rumus">W = F·s = (P·A)·s = P·ΔV</span><span class="rumus">W = P (V₂ − V₁)</span>
+<p><b>Usaha gas = luas daerah di bawah grafik P–V.</b> Untuk tekanan tetap luasnya persegi panjang; untuk garis miring luasnya trapesium: W = ½ (P₁ + P₂)(V₂ − V₁).</p>
+<ul><li>Gas memuai (ΔV &gt; 0) → W positif: sistem melakukan usaha.</li><li>Gas dimampatkan (ΔV &lt; 0) → W negatif: sistem menerima usaha.</li><li>Volume tetap (ΔV = 0) → W = 0.</li></ul><p>Satuan: Pa·m³ = J, dan kPa·L = J.</p>`,
+quiz:[
+{q:'Gas memuai pada tekanan tetap 2 × 10⁵ Pa dari volume 2 L menjadi 5 L. Berapakah usaha yang dilakukan gas?',a:600,u:'J'},
+{q:'Gas dimampatkan pada tekanan tetap 1,5 × 10⁵ Pa dari volume 8 L menjadi 3 L. Berapakah usaha gas lengkap dengan tandanya?',a:-750,u:'J'},
+{q:'Pada grafik P–V, gas memuai dari V = 1 m³ ke V = 3 m³ sementara tekanannya turun secara linear dari 4 × 10⁵ Pa menjadi 2 × 10⁵ Pa. Berapakah usaha yang dilakukan gas?',a:600,u:'kJ'},
+{q:'Sebanyak 2 mol gas ideal memuai pada tekanan tetap sehingga suhunya naik dari 300 K menjadi 400 K. Berapakah usaha yang dilakukan gas? (Petunjuk: PΔV = nRΔT, R = 8,31 J/mol·K)',a:2*R*100,u:'J'},
+{q:'Gas mengalami proses A→B pada tekanan tetap 3 × 10⁵ Pa dari volume 2 L ke 6 L, kemudian proses B→C pada volume tetap hingga tekanannya turun menjadi 1 × 10⁵ Pa. Berapakah usaha total gas pada proses A→B→C?',a:1200,u:'J'}]});
+
+/* ---------- MISI 4 ---------- */
+const PN={isoT:'Isotermal',isoV:'Isokhorik',isoP:'Isobarik',adia:'Adiabatik'};
+function pst(type,v){const T0=300,V0=10,P0=R*T0/V0,gm=5/3;let V=V0,T=T0,P=P0,W=0,pts=[];
+  if(type=='isoT'){V=v.V;P=R*T0/V;W=R*T0*Math.log(V/V0);for(let i=0;i<=40;i++){const x=V0+(V-V0)*i/40;pts.push([x,R*T0/x])}}
+  else if(type=='isoV'){T=v.T;P=R*T/V0;pts=[[V0,P0],[V0,P]]}
+  else if(type=='isoP'){T=v.T;V=V0*T/T0;W=P0*(V-V0);pts=[[V0,P0],[V,P0]]}
+  else{V=v.V;P=P0*Math.pow(V0/V,gm);T=T0*Math.pow(V0/V,gm-1);W=(P0*V0-P*V)/(gm-1);for(let i=0;i<=40;i++){const x=V0+(V-V0)*i/40;pts.push([x,P0*Math.pow(V0/x,gm)])}}
+  const dU=1.5*R*(T-T0);return{P,V,T,W,dU,Q:dU+W,pts,P0,V0,T0}}
+function pcfg(type,full){const ps=mkPs(40),SV={id:'V',l:'Volume',min:5,max:24,step:1,val:10,u:'L'},ST={id:'T',l:'Suhu',min:150,max:720,step:30,val:300,u:'K'};
+  const useV=t=>t=='isoT'||t=='adia',tp=v=>type||v.jenis,X={isoT:['P × V',s=>s.P*s.V],isoV:['P / T',s=>s.P/s.T],isoP:['V / T',s=>s.V/s.T],adia:['P × V',s=>s.P*s.V]};
+  return{sliders:type?[useV(type)?SV:ST]:[SV,ST],selects:type?[]:[{id:'jenis',l:'Jenis proses',o:Object.entries(PN)}],
+  draw(g,v,st,dt){const t=tp(v),s=pst(t,v);drawCyl(g,30,70,250,130,{frac:s.V/25,T:s.T,ps,dt,lock:t=='isoV',insul:t=='adia',heat:Math.abs(s.Q)<1?0:s.Q});
+    drawGraph(g,375,25,280,220,{xm:25,ym:800,xl:'V (L)',yl:'P (kPa)',fills:[{pts:s.pts,col:'rgba(14,165,233,.25)'}],curves:[{pts:s.pts,col:'#0369a1'}],dots:[[s.V0,s.P0,'#0f172a']],pt:[s.V,s.P]});
+    txt(g,'Proses '+PN[t]+(type?'':useV(t)?' — geser Volume':' — geser Suhu'),30,30,{c:'#475569'});txt(g,'● keadaan awal: 10 L, 300 K',375,16,{b:false,s:11,c:'#475569'})},
+  read(v){const s=pst(tp(v),v),r=[['P',fmt(s.P)+' kPa'],['V',fmt(s.V)+' L'],['T',fmt(s.T)+' K'],['Usaha W',fmt(s.W)+' J']];if(full)r.push(['ΔU',fmt(s.dU)+' J'],['Kalor Q',fmt(s.Q)+' J']);return r},
+  cols:full?['Proses','V (L)','P (kPa)','T (K)','Q (J)','W (J)','ΔU (J)']:['V (L)','P (kPa)','T (K)',X[type][0],'W (J)'],
+  row(v){const t=tp(v),s=pst(t,v);return full?[PN[t],s.V,s.P,s.T,s.Q,s.W,s.dU]:[s.V,s.P,s.T,X[t][1](s),s.W]}}}
+const pIntro=x=>step(`Gas 1 mol mula-mula bervolume 10 L dan bersuhu 300 K (titik hitam). ${x} Catat minimal 5 data (termasuk ke dua arah dari keadaan awal).`);
+M.push({id:'m4',ico:'🛤️',name:'Empat Jalur Gas',sub:'Proses-proses Termodinamika',col:'#059669',
+brief:`<b>Ruang kendali Akademi</b> punya empat tuas untuk mengubah keadaan gas: menjaga suhunya, mengunci volumenya, menjaga tekanannya, atau membungkusnya rapat dengan isolator. Tiap tuas membuat gas menempuh “jalur” berbeda pada grafik P–V.<br><br><b>Pertanyaan pemantik:</b> Jika gas dimampatkan sangat cepat (misalnya di pompa sepeda), mengapa pompa terasa panas padahal tidak dipanaskan?`,
+goals:['Menemukan ciri khas proses isotermal, isokhorik, isobarik, dan adiabatik.','Mengenali bentuk grafik P–V tiap proses.','Membandingkan usaha gas pada keempat proses.'],
+tabs:[
+{t:'🌡️ Isotermal',b:el=>tab(el,`${pIntro('Tabung dibenamkan dalam bak air besar sehingga suhunya terjaga. Geser volume.')}<div class="host"></div>${ask('Besaran apa yang tetap pada proses ini? Kolom mana yang nilainya selalu sama?')}${ask('Bagaimana bentuk grafik P–V-nya? Bagaimana tanda usaha saat gas memuai dan saat dimampatkan?')}`,pcfg('isoT'))},
+{t:'🔒 Isokhorik',b:el=>tab(el,`${pIntro('Piston dikunci. Ubah suhu gas.')}<div class="host"></div>${ask('Besaran apa yang tetap? Kolom mana yang nilainya selalu sama?')}${ask('Bagaimana bentuk grafik P–V-nya? Berapa usaha gas, dan mengapa demikian?')}`,pcfg('isoV'))},
+{t:'⚖️ Isobarik',b:el=>tab(el,`${pIntro('Piston bebas bergerak dengan beban tetap. Ubah suhu gas.')}<div class="host"></div>${ask('Besaran apa yang tetap? Kolom mana yang nilainya selalu sama?')}${ask('Bagaimana bentuk grafik P–V-nya? Tuliskan rumus usaha gas pada proses ini.')}`,pcfg('isoP'))},
+{t:'🧥 Adiabatik',b:el=>tab(el,`${pIntro('Tabung dibungkus isolator sempurna: <b>tidak ada kalor yang masuk atau keluar (Q = 0)</b>. Geser volume.')}<div class="host"></div>${ask('Apa yang terjadi pada suhu ketika gas dimampatkan? Ketika gas memuai? Apakah P × V tetap?')}${ask('Tidak ada kalor yang masuk, tetapi suhu gas bisa naik. Dari mana energinya? Jelaskan kasus pompa sepeda yang terasa panas.')}`,pcfg('adia'))},
+{t:'🏁 Arena Banding',b:el=>tab(el,`${step('Keempat proses dimulai dari keadaan awal yang sama (10 L, 300 K). Gas dimuaikan sampai volume akhir yang sama (kecuali isokhorik). Geser volume akhir, catat minimal 3 data.')}<div class="host"></div>
+${ask('Urutkan usaha gas dari yang terbesar sampai terkecil. Jelaskan dengan luas daerah di bawah grafik.')}${ask('Mengapa kurva adiabatik lebih curam (turun lebih cepat) daripada kurva isotermal?')}
+<h3>Cocokkan</h3>${[['Suhu tetap',0],['Volume tetap',1],['Tekanan tetap',2],['Tidak ada pertukaran kalor (Q = 0)',3],['Grafik P–V berupa garis tegak; W = 0',1],['Grafik P–V berupa garis mendatar',2]].map(x=>pick(x[0],Object.values(PN),x[1])).join('')}`,
+ {sliders:[{id:'V',l:'Volume akhir',min:11,max:24,step:1,val:20,u:'L'}],
+  calc(v){const a=pst('isoT',v),b=pst('adia',v);return{a,b,Wp:a.P0*(v.V-10)}},
+  draw(g,v){const s=this.calc(v),P0=s.a.P0;drawGraph(g,120,25,420,230,{xm:25,ym:300,xl:'V (L)',yl:'P (kPa)',curves:[{pts:[[10,P0],[v.V,P0]],col:'#16a34a'},{pts:s.a.pts,col:'#0284c7'},{pts:s.b.pts,col:'#dc2626'},{pts:[[10,P0],[10,s.a.P]],col:'#9333ea',dash:[6,4]}],dots:[[10,P0,'#0f172a']]});
+    [['Isobarik','#16a34a'],['Isotermal','#0284c7'],['Adiabatik','#dc2626'],['Isokhorik','#9333ea']].forEach((l,i)=>txt(g,'▬ '+l[0],560,60+i*22,{c:l[1]}))},
+  read(v){const s=this.calc(v);return[['W isobarik',fmt(s.Wp)+' J'],['W isotermal',fmt(s.a.W)+' J'],['W adiabatik',fmt(s.b.W)+' J'],['W isokhorik','0 J']]},
+  cols:['V akhir (L)','W isobarik (J)','W isotermal (J)','W adiabatik (J)','W isokhorik (J)'],row(v){const s=this.calc(v);return[v.V,s.Wp,s.a.W,s.b.W,0]}})}],
+kq:['Buat ringkasan keempat proses: besaran yang tetap, bentuk grafik P–V, dan usahanya.','Jelaskan perbedaan proses isotermal dan adiabatik.'],
+konsep:`<ul><li><b>Isotermal</b> (T tetap): PV = tetap; grafik melengkung (hiperbola). <span class="rumus">W = nRT ln (V₂/V₁)</span></li>
+<li><b>Isokhorik</b> (V tetap): P/T = tetap; grafik garis tegak. <span class="rumus">W = 0</span></li>
+<li><b>Isobarik</b> (P tetap): V/T = tetap; grafik garis mendatar. <span class="rumus">W = P (V₂ − V₁) = nRΔT</span></li>
+<li><b>Adiabatik</b> (Q = 0): PV<sup>γ</sup> = tetap dan TV<sup>γ−1</sup> = tetap; kurva lebih curam daripada isotermal; suhu turun saat memuai dan naik saat dimampatkan. <span class="rumus">W = (P₁V₁ − P₂V₂)/(γ − 1) = −ΔU</span></li></ul>`,
+quiz:[
+{q:'Sebanyak 2 mol gas ideal memuai secara isotermal pada suhu 300 K sehingga volumenya menjadi dua kali semula. Berapakah usaha yang dilakukan gas? (ln 2 = 0,693)',a:2*R*300*.693,u:'J'},
+{q:'Gas dalam tabung kaku (isokhorik) bertekanan 150 kPa pada suhu 300 K, dipanaskan hingga 450 K. Berapakah tekanan gas sekarang?',a:225,u:'kPa'},
+{q:'Gas memuai secara isobarik pada tekanan 3 × 10⁵ Pa. Volume awalnya 4 L dan suhunya naik dari 300 K menjadi 450 K. Berapakah usaha yang dilakukan gas?',a:600,u:'J'},
+{q:'Gas monoatomik (γ = 5/3) bertekanan 3,2 × 10⁵ Pa dan bervolume 1 L memuai secara adiabatik hingga volumenya 8 L. Berapakah tekanan akhirnya? (8<sup>5/3</sup> = 32)',a:10,u:'kPa'},
+{q:'Untuk gas pada soal nomor 4, berapakah usaha yang dilakukan gas selama pemuaian adiabatik tersebut?',a:(3.2e5*1e-3-1e4*8e-3)/(2/3),u:'J'}]});
+
+/* ---------- MISI 5 ---------- */
+M.push({id:'m5',ico:'⚖️',name:'Neraca Energi',sub:'Hukum I Termodinamika',col:'#dc2626',
+brief:`<b>Bagian keuangan energi Akademi</b> kebingungan: gas diberi kalor 1000 J, tetapi usaha yang dihasilkan hanya 400 J. “Ke mana 600 J sisanya? Hilang?”<br><br><b>Pertanyaan pemantik:</b> Menurut kalian, apakah energi bisa hilang? Jika tidak, di mana 600 J itu sekarang?`,
+goals:['Menemukan bahwa energi dalam gas ideal hanya bergantung pada suhu.','Menemukan hubungan Q, W, dan ΔU (Hukum I Termodinamika).','Menerapkan Hukum I pada empat proses termodinamika.'],
+tabs:[
+{t:'🔋 Energi Dalam',b:el=>tab(el,`${step('<b>Energi dalam (U)</b> adalah jumlah energi kinetik seluruh partikel gas. Ubah suhu dan jumlah zat gas monoatomik, catat minimal 5 data, perhatikan kolom terakhir.')}<div class="host"></div>
+${ask('Jika suhu dinaikkan dua kali, apa yang terjadi pada U? Jika suhu tetap, apakah U berubah?')}${ask('Nilai U/(nT) selalu sama. Bandingkan nilainya dengan R = 8,31. Tuliskan rumus U untuk gas monoatomik.')}${pick('Pada proses isotermal, perubahan energi dalam ΔU bernilai …',['positif','negatif','nol'],2)}`,
+ (()=>{const ps=mkPs(60);return{sliders:[{id:'n',l:'Jumlah zat n',min:1,max:3,step:1,val:1,u:'mol'},{id:'T',l:'Suhu',min:100,max:900,step:100,val:300,u:'K'}],
+  draw(g,v,st,dt){drawCyl(g,40,70,280,130,{frac:.85,T:v.T,ps,dt,n:20*v.n,lock:true});drawBars(g,430,40,160,210,[{l:'Energi dalam U',v:1.5*v.n*R*v.T,col:tcol(v.T)}],35000)},
+  read:v=>[['Energi dalam U',fmt(1.5*v.n*R*v.T)+' J']],cols:['n (mol)','T (K)','U (J)','U / (nT)'],row:v=>[v.n,v.T,1.5*v.n*R*v.T,1.5*R]}})())},
+{t:'🧾 Neraca Q–W–ΔU',b:el=>tab(el,`${step('Gas 2 mol bersuhu awal 300 K. Atur <b>kalor Q</b> (positif = diterima gas) dan <b>usaha W</b> (positif = dilakukan gas). Simulasi mengukur energi dalam sebelum dan sesudah. Catat minimal 6 data, termasuk Q dan W yang negatif.')}<div class="host"></div>
+${ask('Amati kolom Q, W, dan ΔU. Temukan satu persamaan yang menghubungkan ketiganya dan berlaku untuk semua baris datamu.')}${ask('Jawab kebingungan bagian keuangan: gas diberi kalor 1000 J dan melakukan usaha 400 J. Ke mana 600 J sisanya? Apa buktinya?')}${ask('Mungkinkah suhu gas naik padahal gas melepas kalor (Q negatif)? Cari contohnya di simulasi dan jelaskan.')}`,
+ (()=>{const ps=mkPs(40);return{sliders:[{id:'Q',l:'Kalor Q',min:-2000,max:2000,step:100,val:1000,u:'J'},{id:'W',l:'Usaha W',min:-2000,max:2000,step:100,val:400,u:'J'}],
+  calc:v=>{const U0=3*R*300,dU=v.Q-v.W;return{U0,dU,U:U0+dU,T:300+dU/(3*R)}},
+  draw(g,v,st,dt){const s=this.calc(v);drawCyl(g,30,70,250,130,{frac:.5+v.W/8000,T:s.T,ps,dt,heat:v.Q});
+    drawBars(g,370,30,280,220,[{l:'Q',v:v.Q,col:'#ef4444'},{l:'W',v:v.W,col:'#16a34a'},{l:'ΔU',v:s.dU,col:'#f59e0b'}],4000,true);
+    txt(g,v.W>0?'gas memuai (melakukan usaha)':v.W<0?'gas dimampatkan (menerima usaha)':'piston diam',30,35,{c:'#475569'})},
+  read(v){const s=this.calc(v);return[['Suhu awal','300 K'],['Suhu akhir',fmt(s.T)+' K'],['U awal',fmt(s.U0)+' J'],['U akhir',fmt(s.U)+' J']]},
+  cols:['Q (J)','W (J)','U awal (J)','U akhir (J)','ΔU (J)'],row(v){const s=this.calc(v);return[v.Q,v.W,s.U0,s.U,s.dU]}}})())},
+{t:'🛤️ Hukum I di 4 Proses',b:el=>tab(el,`${step('Gas monoatomik 1 mol dari keadaan awal 10 L, 300 K. Pilih jenis proses, geser pengaturnya (volume untuk isotermal/adiabatik, suhu untuk isokhorik/isobarik), dan catat minimal 2 data untuk <b>setiap</b> proses.')}<div class="host"></div>
+<h3>Besaran mana yang bernilai nol?</h3>${pick('Isotermal',['Q = 0','W = 0','ΔU = 0','tidak ada'],2)}${pick('Isokhorik',['Q = 0','W = 0','ΔU = 0','tidak ada'],1)}${pick('Isobarik',['Q = 0','W = 0','ΔU = 0','tidak ada'],3)}${pick('Adiabatik',['Q = 0','W = 0','ΔU = 0','tidak ada'],0)}
+${ask('Tuliskan bentuk khusus Hukum I untuk setiap proses (misalnya: pada isotermal, Q = …).',4)}`,pcfg(null,true))}],
+kq:['Jelaskan apa itu energi dalam gas ideal dan bergantung pada apa.','Tuliskan Hukum I Termodinamika dalam kalimat dan rumus, lengkap dengan perjanjian tandanya.','Tuliskan bentuk Hukum I pada proses isotermal, isokhorik, isobarik, dan adiabatik.'],
+konsep:`<p><b>Energi dalam</b> gas ideal hanya bergantung pada suhu. Untuk gas monoatomik:</p><span class="rumus">U = 3/2 nRT</span><span class="rumus">ΔU = 3/2 nRΔT</span>
+<p><b>Hukum I Termodinamika</b> (kekekalan energi): kalor yang diterima sistem digunakan untuk menambah energi dalam dan melakukan usaha.</p><span class="rumus">Q = ΔU + W</span><span class="rumus">ΔU = Q − W</span>
+<ul><li>Isotermal: ΔU = 0 → Q = W</li><li>Isokhorik: W = 0 → Q = ΔU</li><li>Isobarik: Q = ΔU + PΔV</li><li>Adiabatik: Q = 0 → ΔU = −W</li></ul>`,
+quiz:[
+{q:'Suatu gas menerima kalor 2000 J dan melakukan usaha 800 J. Berapakah perubahan energi dalam gas?',a:1200,u:'J'},
+{q:'Suatu gas melepas kalor 500 J ke lingkungan dan pada saat yang sama dikenai usaha 300 J oleh lingkungan. Berapakah perubahan energi dalam gas lengkap dengan tandanya?',a:-200,u:'J'},
+{q:'Sebanyak 2 mol gas monoatomik dipanaskan pada volume tetap dari 300 K menjadi 500 K. Berapakah kalor yang diserap gas? (R = 8,31 J/mol·K)',a:1.5*2*R*200,u:'J'},
+{q:'Sebanyak 1 mol gas ideal memuai secara isotermal pada suhu 300 K hingga volumenya dua kali semula. Berapakah kalor yang diserap gas? (ln 2 = 0,693)',a:R*300*.693,u:'J'},
+{q:'Sebanyak 3 mol gas monoatomik dimampatkan secara adiabatik sehingga suhunya naik dari 300 K menjadi 400 K. Berapakah usaha gas lengkap dengan tandanya?',a:-1.5*3*R*100,u:'J'}]});
+
+/* ---------- MISI 6 ---------- */
+const GAS={3:'Monoatomik',5:'Diatomik'},SG={id:'gas',l:'Jenis gas',o:[['3','Monoatomik (He, Ne, Ar)'],['5','Diatomik (N₂, O₂) pada suhu kamar']]};
+const SN={id:'n',l:'Jumlah zat n',min:1,max:3,step:1,val:1,u:'mol'},SQ={id:'Q',l:'Kalor yang diberikan Q',min:300,max:3000,step:300,val:1200,u:'J'};
+function ccfg(mode){const ps=mkPs(60);return{sliders:[SN,SQ],selects:[SG],init(v,st){st.T=300},
+  calc(v){const f=+v.gas,C=(f/2+(mode=='p'?1:0))*v.n*R,dT=v.Q/C;return{C,dT,W:mode=='p'?v.n*R*dT:0,dU:f/2*v.n*R*dT}},
+  draw(g,v,st,dt){const s=this.calc(v);st.T+=(300+s.dT-st.T)*Math.min(1,dt*3||1);
+    drawCyl(g,30,70,270,130,{frac:mode=='p'?.45*st.T/300:.45,T:st.T,ps,dt,n:20*v.n,lock:mode=='v',heat:1});
+    drawBars(g,390,35,260,210,[{l:'Q diberikan',v:v.Q,col:'#ef4444'},{l:'ΔU',v:s.dU,col:'#f59e0b'},{l:'W',v:s.W,col:'#16a34a'}],3200);
+    txt(g,mode=='v'?'Piston DIKUNCI (volume tetap)':'Piston BEBAS (tekanan tetap)',30,35,{c:'#475569'})},
+  read(v){const s=this.calc(v);return[['Suhu awal','300 K'],['Suhu akhir',fmt(300+s.dT)+' K'],['Kenaikan suhu ΔT',fmt(s.dT)+' K']]},
+  cols:mode=='v'?['Gas','n (mol)','Q (J)','ΔT (K)','Q / ΔT (J/K)']:['Gas','n (mol)','Q (J)','ΔT (K)','Q / ΔT (J/K)','W (J)'],
+  row(v){const s=this.calc(v),r=[GAS[v.gas],v.n,v.Q,s.dT,s.C];if(mode=='p')r.push(s.W);return r}}}
+M.push({id:'m6',ico:'🌡️',name:'Harga Menaikkan Suhu',sub:'Kapasitas Kalor Gas Ideal',col:'#d97706',
+brief:`<b>Dua teknisi Akademi berdebat.</b> Keduanya memanaskan gas yang sama dengan jumlah kalor yang sama. Teknisi A mengunci pistonnya, teknisi B membiarkan pistonnya bebas. Ternyata kenaikan suhu gas mereka <i>berbeda</i>!<br><br><b>Pertanyaan pemantik:</b> Gas siapa yang suhunya naik lebih tinggi? Mengapa bisa berbeda padahal kalornya sama?`,
+goals:['Menemukan kapasitas kalor gas pada volume tetap (C<sub>V</sub>).','Menemukan kapasitas kalor gas pada tekanan tetap (C<sub>P</sub>).','Menemukan hubungan C<sub>P</sub> dan C<sub>V</sub> serta tetapan Laplace γ.'],
+tabs:[
+{t:'🔒 Lab C<sub>V</sub>',b:el=>tab(el,`${step('<b>Kapasitas kalor (C)</b> = kalor yang diperlukan untuk menaikkan suhu sebesar 1 K, yaitu C = Q/ΔT. Di sini piston <b>dikunci</b>. Ubah Q, n, dan jenis gas. Catat minimal 5 data.')}<div class="host"></div>
+${ask('Untuk gas dan n yang sama, apakah Q/ΔT berubah ketika Q diubah? Bagaimana jika n dijadikan 2 kali?')}${ask('Untuk gas monoatomik, bandingkan Q/ΔT dengan nR (n × 8,31). Berapa kali nR? Bagaimana untuk gas diatomik? Tuliskan rumus C<sub>V</sub>.')}${ask('Pada volume tetap W = 0. Menurut Hukum I, kalor yang diberikan seluruhnya menjadi apa?')}`,ccfg('v'))},
+{t:'⚖️ Lab C<sub>P</sub>',b:el=>tab(el,`${step('Sekarang piston <b>bebas bergerak</b> sehingga tekanan gas tetap. Ulangi percobaan dengan nilai Q, n, dan gas yang sama seperti di Lab C<sub>V</sub>. Catat minimal 5 data.')}<div class="host"></div>
+${ask('Bandingkan ΔT di sini dengan ΔT di Lab C<sub>V</sub> untuk Q yang sama. Mana yang lebih kecil?')}${ask('Bandingkan Q/ΔT dengan nR. Tuliskan rumus C<sub>P</sub> untuk gas monoatomik dan diatomik.')}${ask('Perhatikan kolom W. Bandingkan W dengan nRΔT. Apa yang kamu temukan?')}`,ccfg('p'))},
+{t:'🆚 Mengapa C<sub>P</sub> &gt; C<sub>V</sub>?',b:el=>tab(el,`${step('Dua tabung berisi gas yang sama diberi kalor yang sama. Batang berwarna menunjukkan <b>ke mana kalor itu pergi</b>. Catat minimal 4 data (2 jenis gas, n berbeda).')}<div class="host"></div>
+${ask('Jelaskan dengan Hukum I mengapa kenaikan suhu pada tekanan tetap lebih kecil daripada pada volume tetap.')}${ask('Hitung nR untuk tiap baris datamu, lalu bandingkan dengan kolom C<sub>P</sub> − C<sub>V</sub>. Tuliskan hubungannya.')}${ask('Perhatikan kolom γ = C<sub>P</sub>/C<sub>V</sub>. Bergantung pada apakah nilainya: jumlah zat, kalor, atau jenis gas?')}`,
+ (()=>{const pa=mkPs(60),pb=mkPs(60);return{h:340,sliders:[SN,SQ],selects:[SG],
+  calc(v){const f=+v.gas,nR=v.n*R,CV=f/2*nR,CP=CV+nR;return{CV,CP,dTv:v.Q/CV,dTp:v.Q/CP}},
+  draw(g,v,st,dt){const s=this.calc(v),L=E=>E/3000*270;
+    drawCyl(g,30,45,240,85,{frac:.45,T:300+s.dTv,ps:pa,dt,n:20*v.n,lock:true,heat:1});drawCyl(g,30,205,240,85,{frac:.45*(300+s.dTp)/300,T:300+s.dTp,ps:pb,dt,n:20*v.n,heat:1});
+    txt(g,'A. Volume tetap  —  ΔT = '+fmt(s.dTv)+' K',30,14,{s:13});txt(g,'B. Tekanan tetap  —  ΔT = '+fmt(s.dTp)+' K',30,185,{s:13});
+    const x=370,W=v.n*R*s.dTp,dU=v.Q-W;g.fillStyle='#f59e0b';g.fillRect(x,70,L(v.Q),34);g.fillRect(x,230,L(dU),34);g.fillStyle='#16a34a';g.fillRect(x+L(dU),230,L(W),34);
+    txt(g,'Q = '+fmt(v.Q)+' J  →  semuanya menjadi ΔU',x,60);txt(g,'Q = '+fmt(v.Q)+' J  →  ΔU = '+fmt(dU)+' J  +  W = '+fmt(W)+' J',x,220);
+    txt(g,'■ ΔU (menaikkan suhu)',x,292,{c:'#b45309'});txt(g,'■ W (mendorong piston)',x+160,292,{c:'#15803d'})},
+  read(v){const s=this.calc(v);return[['C_V',fmt(s.CV)+' J/K'],['C_P',fmt(s.CP)+' J/K']]},
+  cols:['Gas','n (mol)','Q (J)','ΔT V-tetap','ΔT P-tetap','C<sub>V</sub> (J/K)','C<sub>P</sub> (J/K)','C<sub>P</sub> − C<sub>V</sub>','γ = C<sub>P</sub>/C<sub>V</sub>'],
+  row(v){const s=this.calc(v);return[GAS[v.gas],v.n,v.Q,s.dTv,s.dTp,s.CV,s.CP,s.CP-s.CV,s.CP/s.CV]}}})())}],
+kq:['Jelaskan pengertian kapasitas kalor gas, C<sub>V</sub>, dan C<sub>P</sub>.','Tuliskan rumus C<sub>V</sub> dan C<sub>P</sub> untuk gas monoatomik dan diatomik, serta hubungan keduanya.','Jelaskan mengapa C<sub>P</sub> selalu lebih besar daripada C<sub>V</sub>.'],
+konsep:`<span class="rumus">C = Q / ΔT</span><span class="rumus">Q<sub>V</sub> = C<sub>V</sub> ΔT</span><span class="rumus">Q<sub>P</sub> = C<sub>P</sub> ΔT</span>
+<ul><li>Gas monoatomik: C<sub>V</sub> = 3/2 nR, C<sub>P</sub> = 5/2 nR, γ = 5/3 ≈ 1,67</li><li>Gas diatomik (suhu kamar): C<sub>V</sub> = 5/2 nR, C<sub>P</sub> = 7/2 nR, γ = 7/5 = 1,4</li></ul>
+<span class="rumus">C<sub>P</sub> − C<sub>V</sub> = nR</span><span class="rumus">γ = C<sub>P</sub> / C<sub>V</sub></span>
+<p>Pada volume tetap seluruh kalor menaikkan energi dalam (Q = ΔU). Pada tekanan tetap sebagian kalor dipakai untuk usaha memuai (Q = ΔU + PΔV), sehingga perlu kalor lebih banyak untuk kenaikan suhu yang sama → C<sub>P</sub> &gt; C<sub>V</sub>.</p>`,
+quiz:[
+{q:'Berapakah kapasitas kalor pada volume tetap (C<sub>V</sub>) untuk 2 mol gas monoatomik? (R = 8,31 J/mol·K)',a:3*R,u:'J/K'},
+{q:'Berapakah kapasitas kalor pada tekanan tetap (C<sub>P</sub>) untuk 2 mol gas monoatomik tersebut?',a:5*R,u:'J/K'},
+{q:'Sebanyak 3 mol gas monoatomik dipanaskan pada volume tetap dari 27 °C menjadi 127 °C. Berapakah kalor yang diperlukan?',a:4.5*R*100,u:'J'},
+{q:'Sebanyak 0,5 mol gas diatomik (C<sub>V</sub> = 5/2 nR) dipanaskan pada tekanan tetap sehingga suhunya naik 80 K. Berapakah kalor yang diperlukan?',a:3.5*.5*R*80,u:'J'},
+{q:'Satu mol gas memiliki kapasitas kalor pada volume tetap C<sub>V</sub> = 20,8 J/K. Berapakah tetapan Laplace γ gas tersebut?',a:(20.8+R)/20.8,u:'(tanpa satuan)'}]});
+
+/* ---------- MISI 7 ---------- */
+M.push({id:'m7',ico:'⚙️',name:'Merakit Mesin',sub:'Siklus Termodinamika & Mesin Carnot',col:'#4f46e5',
+brief:`<b>Proyek besar Akademi:</b> merancang mesin kalor paling hemat bahan bakar. Mesin harus bekerja terus-menerus, jadi gas di dalamnya harus kembali ke keadaan semula berulang-ulang — inilah <i>siklus</i>.<br><br><b>Pertanyaan pemantik:</b> Bisakah kita membuat mesin yang mengubah <i>seluruh</i> kalor bahan bakar menjadi usaha (efisiensi 100%)? Apa yang menentukan efisiensi maksimum sebuah mesin?`,
+goals:['Menemukan usaha total satu siklus dari grafik P–V.','Menemukan rumus efisiensi mesin kalor.','Menemukan efisiensi mesin Carnot dan faktor yang menentukannya.'],
+tabs:[
+{t:'🔄 Siklus',b:el=>tab(el,`${step('Gas menjalani siklus berbentuk persegi panjang: dua proses isobarik dan dua proses isokhorik, lalu kembali ke keadaan awal. Atur tekanan, volume, dan arah siklus. Catat minimal 4 data (termasuk kedua arah).')}<div class="host"></div>
+${ask('Hitung sendiri <b>luas persegi panjang</b> siklus untuk dua baris datamu, lalu bandingkan dengan W total. Apa kesimpulanmu?',3)}${ask('Apa pengaruh arah siklus (searah / berlawanan jarum jam) terhadap tanda usaha total?')}${ask('Setelah satu siklus penuh gas kembali ke suhu semula. Berapakah ΔU satu siklus? Menurut Hukum I, apa hubungan W total dengan kalor bersih yang diterima gas?')}`,
+ {sliders:[{id:'PH',l:'Tekanan tinggi',min:200,max:500,step:50,val:400,u:'kPa'},{id:'PL',l:'Tekanan rendah',min:50,max:150,step:50,val:100,u:'kPa'},{id:'V1',l:'Volume kecil',min:2,max:10,step:1,val:5,u:'L'},{id:'V2',l:'Volume besar',min:12,max:24,step:1,val:20,u:'L'}],
+  selects:[{id:'arah',l:'Arah siklus',o:[['1','Searah jarum jam'],['-1','Berlawanan arah jarum jam']]}],init(v,st){st.u=0},
+  draw(g,v,st,dt){const c=[[v.V1,v.PH],[v.V2,v.PH],[v.V2,v.PL],[v.V1,v.PL]],d=+v.arah;st.u=(st.u+dt*.8*d+4)%4;const i=Math.floor(st.u),f=st.u-i,a=c[i],b=c[(i+1)%4];
+    drawGraph(g,170,25,360,225,{xm:25,ym:550,xl:'V (L)',yl:'P (kPa)',polys:[{pts:c,col:d>0?'rgba(79,70,229,.25)':'rgba(220,38,38,.22)'}],curves:[{pts:[...c,c[0]],col:'#3730a3'}],pt:[a[0]+(b[0]-a[0])*f,a[1]+(b[1]-a[1])*f]});
+    txt(g,d>0?'↻ searah jarum jam':'↺ berlawanan jarum jam',545,60,{c:'#3730a3'})},
+  calc(v){const d=+v.arah,dV=v.V2-v.V1;return{Wa:d*v.PH*dV,Wb:-d*v.PL*dV,Wt:d*(v.PH-v.PL)*dV}},
+  read(v){const s=this.calc(v);return[['W proses atas',fmt(s.Wa)+' J'],['W proses bawah',fmt(s.Wb)+' J'],['W dua proses tegak','0 J'],['W total siklus',fmt(s.Wt)+' J']]},
+  cols:['Arah','P tinggi (kPa)','P rendah (kPa)','V kecil (L)','V besar (L)','W atas (J)','W bawah (J)','W total (J)'],row(v){const s=this.calc(v);return[+v.arah>0?'Searah':'Berlawanan',v.PH,v.PL,v.V1,v.V2,s.Wa,s.Wb,s.Wt]}})},
+{t:'🚂 Mesin Kalor',b:el=>tab(el,`${step('Mesin kalor mengambil kalor <b>Q<sub>H</sub></b> dari reservoir panas, mengubah sebagian menjadi usaha <b>W</b>, dan membuang sisanya <b>Q<sub>C</sub></b> ke reservoir dingin. Atur Q<sub>H</sub> dan Q<sub>C</sub>. Catat minimal 5 data.')}<div class="host"></div>
+${ask('Tuliskan hubungan antara Q<sub>H</sub>, Q<sub>C</sub>, dan W. Hukum apa yang mendasarinya?')}${ask('<b>Efisiensi (η)</b> menyatakan seberapa besar bagian kalor masukan yang berhasil diubah menjadi usaha. Tuliskan rumus η dalam W dan Q<sub>H</sub>, lalu dalam Q<sub>C</sub> dan Q<sub>H</sub>.')}${ask('Agar efisiensi mesin tinggi, Q<sub>C</sub> harus bagaimana?')}`,
+ {sliders:[{id:'QH',l:'Kalor diserap Q_H',min:500,max:3000,step:100,val:2000,u:'J'},{id:'QC',l:'Kalor dibuang Q_C',min:100,max:3000,step:100,val:1200,u:'J'}],
+  calc:v=>{const QC=Math.min(v.QC,v.QH-100);return{QC,W:v.QH-QC}},
+  draw(g,v){const s=this.calc(v);drawFlow(g,300,15,{QH:v.QH,QC:s.QC,W:s.W,max:3000});if(v.QC>s.QC)txt(g,'Q_C dibatasi: tidak mungkin melebihi Q_H',20,290,{c:'#b91c1c'})},
+  read(v){const s=this.calc(v);return[['Usaha W',fmt(s.W)+' J'],['W / Q_H',fmt(s.W/v.QH)],['Efisiensi',fmt(s.W/v.QH*100)+' %']]},
+  cols:['Q<sub>H</sub> (J)','Q<sub>C</sub> (J)','W (J)','W / Q<sub>H</sub>','Q<sub>C</sub> / Q<sub>H</sub>'],row(v){const s=this.calc(v);return[v.QH,s.QC,s.W,s.W/v.QH,s.QC/v.QH]}})},
+{t:'🏆 Mesin Carnot',b:el=>tab(el,`${step('Mesin Carnot adalah mesin <b>ideal</b>: siklusnya terdiri atas 2 proses isotermal (merah: pada T<sub>H</sub>, biru: pada T<sub>C</sub>) dan 2 proses adiabatik (abu-abu). Tidak ada mesin nyata yang lebih efisien darinya. Atur suhu kedua reservoir. Catat minimal 5 data.')}<div class="host"></div>
+${ask('Bandingkan kolom Q<sub>C</sub>/Q<sub>H</sub> dengan kolom T<sub>C</sub>/T<sub>H</sub>. Apa yang kamu temukan? Tuliskan rumus efisiensi mesin Carnot dalam suhu.')}${ask('Bagaimana cara memperbesar efisiensi mesin Carnot? Sebutkan dua cara.')}${ask('Berapa suhu reservoir dingin agar η = 100%? Mungkinkah itu dicapai? Jawab pertanyaan pemantik di Briefing.')}`,
+ {sliders:[{id:'TH',l:'Suhu reservoir panas T_H',min:400,max:900,step:50,val:600,u:'K'},{id:'TC',l:'Suhu reservoir dingin T_C',min:200,max:350,step:25,val:300,u:'K'}],
+  calc:v=>({QH:R*v.TH*Math.LN2,QC:R*v.TC*Math.LN2,eta:1-v.TC/v.TH}),
+  draw(g,v){const k=Math.pow(v.TH/v.TC,1.5),VA=5,VB=10,VC=VB*k,VD=VA*k,iso=(T,a,b)=>Array.from({length:31},(_,i)=>{const x=a+(b-a)*i/30;return[x,R*T/x]}),ad=(T,a,b)=>Array.from({length:31},(_,i)=>{const x=a+(b-a)*i/30;return[x,R*T/a*Math.pow(a/x,5/3)]});
+    const AB=iso(v.TH,VA,VB),BC=ad(v.TH,VB,VC),CD=iso(v.TC,VC,VD),DA=ad(v.TC,VD,VA);
+    drawGraph(g,150,25,400,225,{xm:Math.ceil(VC*1.1/10)*10,ym:Math.ceil(R*v.TH/VA*1.1/100)*100,xl:'V (L)',yl:'P (kPa)',polys:[{pts:[...AB,...BC,...CD,...DA],col:'rgba(79,70,229,.2)'}],curves:[{pts:AB,col:'#dc2626'},{pts:BC,col:'#64748b'},{pts:CD,col:'#2563eb'},{pts:DA,col:'#64748b'}]});
+    txt(g,'▬ isotermal T_H (menyerap Q_H)',560,50,{c:'#dc2626',s:11});txt(g,'▬ isotermal T_C',560,70,{c:'#2563eb',s:11});txt(g,'   (membuang Q_C)',560,84,{c:'#2563eb',s:11});txt(g,'▬ adiabatik',560,104,{c:'#64748b',s:11})},
+  read(v){const s=this.calc(v);return[['Q_H',fmt(s.QH)+' J'],['Q_C',fmt(s.QC)+' J'],['W',fmt(s.QH-s.QC)+' J'],['Efisiensi',fmt(s.eta*100)+' %']]},
+  cols:['T<sub>H</sub> (K)','T<sub>C</sub> (K)','Q<sub>H</sub> (J)','Q<sub>C</sub> (J)','W (J)','η = W/Q<sub>H</sub>','Q<sub>C</sub>/Q<sub>H</sub>','T<sub>C</sub>/T<sub>H</sub>'],row(v){const s=this.calc(v);return[v.TH,v.TC,s.QH,s.QC,s.QH-s.QC,s.eta,s.QC/s.QH,v.TC/v.TH]}})}],
+kq:['Jelaskan apa itu siklus termodinamika dan cara menentukan usaha totalnya.','Tuliskan rumus efisiensi mesin kalor.','Tuliskan rumus efisiensi mesin Carnot dan jelaskan mengapa efisiensi 100% tidak mungkin.'],
+konsep:`<p><b>Siklus</b>: rangkaian proses yang mengembalikan gas ke keadaan awalnya (ΔU = 0). Usaha total siklus = <b>luas daerah yang dilingkupi kurva</b> pada grafik P–V; positif jika searah jarum jam (mesin kalor).</p>
+<span class="rumus">W = Q<sub>H</sub> − Q<sub>C</sub></span><span class="rumus">η = W/Q<sub>H</sub> × 100% = (1 − Q<sub>C</sub>/Q<sub>H</sub>) × 100%</span>
+<p><b>Mesin Carnot</b> (2 isotermal + 2 adiabatik) adalah mesin ideal dengan efisiensi tertinggi; berlaku Q<sub>C</sub>/Q<sub>H</sub> = T<sub>C</sub>/T<sub>H</sub>:</p>
+<span class="rumus">η<sub>Carnot</sub> = (1 − T<sub>C</sub>/T<sub>H</sub>) × 100%</span><p>Suhu dalam kelvin. η = 100% hanya jika T<sub>C</sub> = 0 K, yang tidak mungkin dicapai.</p>`,
+quiz:[
+{q:'Gas menjalani siklus berbentuk persegi panjang searah jarum jam pada grafik P–V: tekanan antara 1 × 10⁵ Pa dan 3 × 10⁵ Pa, volume antara 2 L dan 6 L. Berapakah usaha gas dalam satu siklus?',a:800,u:'J'},
+{q:'Sebuah mesin kalor menyerap kalor 2000 J dari reservoir panas dan membuang 1200 J ke reservoir dingin tiap siklus. Berapakah efisiensi mesin?',a:40,u:'%'},
+{q:'Mesin Carnot bekerja di antara reservoir bersuhu 327 °C dan 27 °C. Berapakah efisiensinya?',a:50,u:'%'},
+{q:'Mesin Carnot bekerja di antara reservoir 800 K dan 400 K serta menyerap kalor 5000 J tiap siklus. Berapakah usaha yang dihasilkan tiap siklus?',a:2500,u:'J'},
+{q:'Sebuah mesin Carnot dengan reservoir panas 500 K memiliki efisiensi 40%. Agar efisiensinya menjadi 50% dengan suhu reservoir dingin tetap, suhu reservoir panas harus dijadikan berapa?',a:600,u:'K'}]});
+
+/* ---------- MISI 8 ---------- */
+M.push({id:'m8',ico:'❄️',name:'Melawan Arah Alami',sub:'Hukum II Termodinamika & Mesin Pendingin',col:'#0891b2',
+brief:`<b>Misi terakhir:</b> kantin Akademi memesan kulkas. Tetapi ada yang aneh: secangkir kopi panas selalu mendingin sendiri, namun tidak pernah ada kopi dingin yang memanas sendiri dengan mengambil kalor dari udara — padahal Hukum I (kekekalan energi) tidak melarangnya!<br><br><b>Pertanyaan pemantik:</b> Mengapa kalor hanya mengalir spontan ke satu arah? Lalu bagaimana kulkas bisa memindahkan kalor dari tempat dingin ke tempat panas?`,
+goals:['Merumuskan Hukum II Termodinamika (pernyataan Clausius dan Kelvin-Planck).','Menemukan makna entropi dan arah proses spontan.','Menemukan cara kerja dan koefisien performansi mesin pendingin.'],
+tabs:[
+{t:'🚫 Clausius & Kelvin-Planck',b:el=>tab(el,`<h3>Percobaan 1 — Arah aliran kalor</h3>${step('Sentuhkan benda panas dan benda dingin, amati. Lalu pisahkan, ulangi, dan coba tombol “Tunggu kalor mengalir sendiri dari dingin ke panas”.')}<div class="host"></div>
+${ask('Ke arah mana kalor mengalir dengan sendirinya (spontan)? Apakah arah sebaliknya pernah terjadi tanpa bantuan?')}
+<h3>Percobaan 2 — Mesin impian</h3>${step('Seorang penemu ingin membuat mesin yang mengubah <b>seluruh</b> kalor menjadi usaha, tanpa membuang kalor sama sekali. Kecilkan Q<sub>C</sub> sedikit demi sedikit sampai 0 dan catat hasilnya (minimal 4 data).')}<div class="host"></div>
+${ask('Apa yang terjadi ketika Q<sub>C</sub> = 0? Apa syarat agar sebuah mesin kalor dapat bekerja dalam siklus?')}
+${ask('Rumuskan dengan kalimatmu sendiri dua “larangan alam” yang kamu temukan: (1) tentang aliran kalor, (2) tentang mesin kalor.',4)}`,
+ {h:230,btns:[{l:'🤝 Sentuhkan kedua benda',f:(v,st)=>{st.c=true;st.msg=''}},{l:'↺ Pisahkan & ulangi',f:(v,st)=>{st.a=90;st.b=10;st.c=false;st.msg=''}},{l:'⏳ Tunggu kalor mengalir sendiri dari dingin ke panas',f:(v,st)=>{st.msg='Tidak terjadi. Dalam semua pengamatan yang pernah dilakukan, kalor tidak pernah mengalir spontan dari benda dingin ke benda panas.'}}],
+  init(v,st){st.a=90;st.b=10;st.c=false;st.msg=''},
+  draw(g,v,st,dt){if(st.c){const q=.6*(st.a-st.b)*dt;st.a-=q;st.b+=q}const gap=st.c?0:60,bx=(x,T,l)=>{g.fillStyle=tcol(100+T*7,.75);g.fillRect(x,50,150,110);g.strokeStyle='#334155';g.lineWidth=3;g.strokeRect(x,50,150,110);txt(g,l,x+75,95,{a:'center',c:'#fff',s:14});txt(g,Math.round(T)+' °C',x+75,125,{a:'center',c:'#fff',s:22})};
+    bx(190-gap/2,st.a,'Benda A');bx(340+gap/2,st.b,'Benda B');
+    if(st.c&&st.a-st.b>1){arrow(g,290,30,390,30,3+(st.a-st.b)/8,'#f97316');txt(g,'kalor',322,18,{c:'#c2410c'})}
+    if(st.c&&st.a-st.b<=1)txt(g,'Setimbang termal — aliran kalor berhenti',340,30,{a:'center',c:'#15803d',s:14});
+    if(st.msg)txt(g,'✖ '+st.msg,340,200,{a:'center',c:'#b91c1c',s:11})},
+  read:(v,st)=>[['Suhu A',Math.round(st.a)+' °C'],['Suhu B',Math.round(st.b)+' °C']]},
+ {h:310,sliders:[{id:'QC',l:'Kalor dibuang Q_C',min:0,max:900,step:100,val:600,u:'J'}],
+  draw(g,v){drawFlow(g,300,15,{QH:1000,QC:v.QC,W:1000-v.QC,max:1000});if(v.QC==0){txt(g,'✖ MESIN MUSTAHIL',20,150,{c:'#b91c1c',s:18});txt(g,'Belum pernah ada mesin siklus yang',20,172,{c:'#b91c1c'});txt(g,'mengubah seluruh kalor menjadi usaha.',20,188,{c:'#b91c1c'})}},
+  read:v=>[['Usaha W',fmt(1000-v.QC)+' J'],['Efisiensi',fmt((1000-v.QC)/10)+' %'],['Status',v.QC==0?'✖ Mustahil':'✔ Dapat bekerja']],
+  cols:['Q<sub>H</sub> (J)','Q<sub>C</sub> (J)','W (J)','η (%)','Status'],row:v=>[1000,v.QC,1000-v.QC,(1000-v.QC)/10,v.QC==0?'Mustahil':'Dapat bekerja']})},
+{t:'🎲 Entropi',b:el=>tab(el,`<h3>Percobaan 1 — Sekat dibuka</h3>${step('Ruang kiri berisi gas panas (partikel merah, cepat), ruang kanan berisi gas dingin (partikel biru, lambat). Buka sekat, amati beberapa saat, lalu pasang lagi sekatnya.')}<div class="host"></div>
+${ask('Apa yang terjadi setelah sekat dibuka? Setelah sekat dipasang lagi, apakah gas kembali terpisah panas–dingin seperti semula? Keadaan mana yang lebih teratur?')}
+<h3>Percobaan 2 — Menghitung perubahan entropi</h3>${step('<b>Entropi (S)</b> adalah ukuran ketidakteraturan. Jika benda bersuhu T menerima kalor Q, entropinya berubah sebesar <b>ΔS = Q/T</b> (negatif bila melepas kalor). Kalor Q berpindah antara reservoir panas dan dingin. Catat minimal 3 data arah “panas → dingin” dan 2 data arah “dingin → panas”.')}<div class="host"></div>
+${ask('Bagaimana tanda ΔS total ketika kalor mengalir dari panas ke dingin? Bagaimana jika arahnya dibalik?')}${ask('Hubungkan dengan Percobaan 1 dan pernyataan Clausius: proses spontan selalu terjadi ke arah entropi total yang bagaimana?')}`,
+ (()=>{const mk=()=>Array.from({length:60},(_,i)=>({x:(i<30?0:.5)+Math.random()*.5,y:Math.random(),vx:Math.random()*2-1,vy:Math.random()*2-1,hot:i<30,s:i<30?1.7:.6}));return{h:240,
+  btns:[{l:'🚪 Buka sekat',f:(v,st)=>{st.open=true}},{l:'🧱 Pasang sekat lagi',f:(v,st)=>{st.open=false}},{l:'↺ Reset',f:(v,st)=>{st.ps=mk();st.open=false}}],
+  init(v,st){st.ps=mk();st.open=false},
+  draw(g,v,st,dt){const x=90,y=30,w=500,h=180;g.fillStyle='#f8fafc';g.fillRect(x,y,w,h);
+    for(const p of st.ps){if(st.open)p.s+=(1.15-p.s)*dt*.15;const L=!st.open&&p.x<.5,ox=p.x;p.x+=p.vx*p.s*dt*.35;p.y+=p.vy*p.s*dt*.9;
+      if(p.x<0){p.x=-p.x;p.vx=-p.vx}if(p.x>1){p.x=2-p.x;p.vx=-p.vx}if(p.y<0){p.y=-p.y;p.vy=-p.vy}if(p.y>1){p.y=2-p.y;p.vy=-p.vy}
+      if(!st.open&&(ox<.5)!=(p.x<.5)){p.x=ox;p.vx=-p.vx}
+      g.fillStyle=tcol(100+(p.s-.6)/1.1*700);g.beginPath();g.arc(x+p.x*w,y+p.y*h,4,0,7);g.fill()}
+    g.strokeStyle='#334155';g.lineWidth=4;g.strokeRect(x,y,w,h);if(!st.open){g.fillStyle='#334155';g.fillRect(x+w/2-3,y,6,h)}},
+  read:(v,st)=>{const hl=st.ps.filter(p=>p.hot&&p.x<.5).length;return[['Partikel “merah awal” di kiri',hl+' dari 30'],['Sekat',st.open?'terbuka':'terpasang']]}}})(),
+ {h:210,sliders:[{id:'Q',l:'Kalor yang berpindah Q',min:300,max:3000,step:300,val:1200,u:'J'},{id:'TH',l:'Suhu reservoir panas',min:400,max:900,step:100,val:600,u:'K'},{id:'TC',l:'Suhu reservoir dingin',min:200,max:350,step:50,val:300,u:'K'}],
+  selects:[{id:'arah',l:'Arah aliran kalor',o:[['1','Panas → dingin'],['-1','Dingin → panas']]}],
+  calc:v=>{const d=+v.arah,sh=-d*v.Q/v.TH,sc=d*v.Q/v.TC;return{sh,sc,tot:sh+sc}},
+  draw(g,v){const s=this.calc(v),d=+v.arah;g.fillStyle='#fecaca';g.fillRect(90,50,180,100);g.fillStyle='#bfdbfe';g.fillRect(410,50,180,100);g.strokeStyle='#334155';g.lineWidth=2;g.strokeRect(90,50,180,100);g.strokeRect(410,50,180,100);
+    txt(g,'Panas: '+v.TH+' K',180,85,{a:'center',c:'#b91c1c',s:14});txt(g,'ΔS = '+fmt(s.sh)+' J/K',180,115,{a:'center'});txt(g,'Dingin: '+v.TC+' K',500,85,{a:'center',c:'#1d4ed8',s:14});txt(g,'ΔS = '+fmt(s.sc)+' J/K',500,115,{a:'center'});
+    d>0?arrow(g,280,100,400,100,12,'#f97316'):arrow(g,400,100,280,100,12,'#f97316');txt(g,'Q = '+v.Q+' J',340,80,{a:'center',c:'#c2410c'});
+    txt(g,'ΔS total = '+fmt(s.tot)+' J/K  →  '+(s.tot>0?'✔ dapat terjadi spontan':'✖ tidak pernah terjadi spontan'),340,190,{a:'center',s:14,c:s.tot>0?'#15803d':'#b91c1c'})},
+  cols:['Arah','Q (J)','T<sub>H</sub> (K)','T<sub>C</sub> (K)','ΔS panas (J/K)','ΔS dingin (J/K)','ΔS total (J/K)'],row(v){const s=this.calc(v);return[+v.arah>0?'Panas → dingin':'Dingin → panas',v.Q,v.TH,v.TC,s.sh,s.sc,s.tot]}})},
+{t:'🧊 Kulkas / AC',b:el=>tab(el,`${step('Mesin pendingin <b>ideal</b> memindahkan kalor Q<sub>C</sub> dari ruang dingin ke ruang panas dengan bantuan usaha W dari kompresor (listrik). Atur suhu ruang dingin, suhu luar, dan usaha kompresor. Catat minimal 5 data.')}<div class="host"></div>
+${ask('Tuliskan hubungan Q<sub>H</sub>, Q<sub>C</sub>, dan W pada mesin pendingin. Mengapa bagian belakang kulkas terasa hangat?')}${ask('<b>Koefisien performansi (K<sub>p</sub>)</b> = kalor yang dipindahkan tiap satuan usaha. Bandingkan kolom Q<sub>C</sub>/W dengan kolom T<sub>C</sub>/(T<sub>H</sub> − T<sub>C</sub>). Tuliskan dua rumus K<sub>p</sub>.')}${ask('Apakah kulkas melanggar pernyataan Clausius? Jelaskan.')}${ask('Berdasarkan datamu, mengapa AC lebih boros listrik jika disetel pada suhu yang sangat rendah atau ketika cuaca di luar sangat panas?')}`,
+ {h:310,sliders:[{id:'TC',l:'Suhu ruang dingin T_C',min:250,max:290,step:5,val:270,u:'K'},{id:'TH',l:'Suhu luar T_H',min:295,max:320,step:5,val:300,u:'K'},{id:'W',l:'Usaha kompresor W',min:50,max:500,step:50,val:100,u:'J'}],
+  calc:v=>{const K=v.TC/(v.TH-v.TC),QC=K*v.W;return{K,QC,QH:QC+v.W}},
+  draw(g,v){const s=this.calc(v);drawFlow(g,300,15,{fr:true,QH:s.QH,QC:s.QC,W:v.W,max:Math.max(3000,s.QH),TH:v.TH,TC:v.TC,name:'Kulkas'});txt(g,'Suhu ruang dingin = '+(v.TC-273)+' °C',20,270,{c:'#1d4ed8'});txt(g,'Suhu luar = '+(v.TH-273)+' °C',20,40,{c:'#b91c1c'})},
+  read(v){const s=this.calc(v);return[['Q_C diserap',fmt(s.QC)+' J'],['Q_H dibuang',fmt(s.QH)+' J'],['K_p',fmt(s.K)]]},
+  cols:['T<sub>C</sub> (K)','T<sub>H</sub> (K)','W (J)','Q<sub>C</sub> (J)','Q<sub>H</sub> (J)','Q<sub>C</sub> / W','T<sub>C</sub> / (T<sub>H</sub> − T<sub>C</sub>)'],row(v){const s=this.calc(v);return[v.TC,v.TH,v.W,s.QC,s.QH,s.QC/v.W,v.TC/(v.TH-v.TC)]}})}],
+kq:['Tuliskan Hukum II Termodinamika menurut pernyataan Clausius dan Kelvin-Planck dengan bahasamu sendiri.','Jelaskan pengertian entropi dan hubungannya dengan arah proses spontan.','Jelaskan cara kerja mesin pendingin dan rumus koefisien performansinya.'],
+konsep:`<p><b>Pernyataan Clausius:</b> kalor tidak mungkin mengalir secara spontan dari benda bersuhu rendah ke benda bersuhu tinggi tanpa usaha dari luar.</p>
+<p><b>Pernyataan Kelvin-Planck:</b> tidak mungkin membuat mesin yang bekerja dalam satu siklus dan mengubah seluruh kalor yang diserapnya menjadi usaha (tidak ada mesin berefisiensi 100%).</p>
+<p><b>Entropi</b> = ukuran ketidakteraturan sistem. Pada proses spontan, entropi total (sistem + lingkungan) selalu bertambah.</p><span class="rumus">ΔS = Q / T</span><span class="rumus">ΔS<sub>total</sub> ≥ 0</span>
+<p><b>Mesin pendingin</b> (kulkas, AC) memindahkan kalor dari reservoir dingin ke reservoir panas dengan bantuan usaha luar, jadi tidak melanggar Clausius.</p>
+<span class="rumus">Q<sub>H</sub> = Q<sub>C</sub> + W</span><span class="rumus">K<sub>p</sub> = Q<sub>C</sub> / W = Q<sub>C</sub> / (Q<sub>H</sub> − Q<sub>C</sub>)</span><span class="rumus">K<sub>p</sub> ideal = T<sub>C</sub> / (T<sub>H</sub> − T<sub>C</sub>)</span>`,
+quiz:[
+{q:'Sebuah kulkas menyerap kalor 600 J dari ruang penyimpanan dengan usaha kompresor 200 J. Berapakah koefisien performansi kulkas tersebut?',a:3,u:'(tanpa satuan)'},
+{q:'Untuk kulkas pada soal nomor 1, berapakah kalor yang dibuang ke udara luar?',a:800,u:'J'},
+{q:'Sebuah kulkas ideal menjaga suhu di dalamnya −3 °C sementara suhu ruangan 27 °C. Berapakah koefisien performansinya?',a:9,u:'(tanpa satuan)'},
+{q:'Kalor sebesar 1200 J mengalir spontan dari reservoir bersuhu 600 K ke reservoir bersuhu 300 K. Berapakah perubahan entropi total kedua reservoir?',a:2,u:'J/K'},
+{q:'Sebuah AC ideal menjaga suhu kamar 17 °C ketika suhu udara luar 37 °C. AC memindahkan kalor 2900 J dari kamar setiap detik. Berapakah daya listrik minimum yang diperlukan kompresor?',a:200,u:'W'}]});
+
+
+const goTo=e=>{const t=e.target.closest&&e.target.closest('[data-go]');if(!t)return;e.preventDefault();S.cur=t.dataset.go;save();route()};
+app.addEventListener('click',goTo);app.addEventListener('keydown',e=>{if(e.key=='Enter')goTo(e)});
+route();requestAnimationFrame(loop);
+</script>
+</body>
+</html>
